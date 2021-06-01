@@ -1,0 +1,122 @@
+<resources>
+
+    <!-- main_activity.xml -->
+    <string name="empty_place">Such an empty place…</string>
+    <string name="try_creating_note">Try creating a note</string>
+    <string name="selecting">Selecting</string>
+    <string name="search">Search</string>
+    <string name="empty_icon">Empty icon</string>
+    <string name="sort_button_desc">Sort</string>
+    <string name="select_button_desc">Select</string>
+    <string name="options_button_desc">Options</string>
+
+    <!-- MainActivity.kt -->
+    <string name="reminder_channel">Reminders</string>
+    <string name="favorites">Favorites</string>
+    <string name="delete_notes">Delete notes</string>
+    <string name="want_to_delete_notes">Do you want to delete the selected notes?</string>
+
+    <!-- note_activity.xml -->
+    <string name="default_note_name">My note</string>
+    <string name="date_placeholder">2008–09–23 17:00</string>
+    <string name="start_writing">Start writing</string>
+    <string name="save_fab_desc">Save</string>
+    <string name="back_button_desc">Back</string>
+    <string name="bold_button_desc">Bold</string>
+    <string name="ital_button_desc">Italics</string>
+    <string name="under_button_desc">Underline</string>
+    <string name="strike_button_desc">Strikethrough</string>
+    <string name="header_button_desc">Header</string>
+    <string name="list_button_desc">List</string>
+    <string name="fore_button_desc">Foreground color</string>
+    <string name="bg_button_desc">Background color</string>
+    <string name="clear_button_desc">Clear formatting</string>
+    <string name="color_button_desc">Note color</string>
+    <string name="tag_button_desc">Add tag</string>
+    <string name="remind_button_desc">Add/Remove Reminder</string>
+
+    <!-- NoteActivity.kt -->
+    <string name="year_month_date_hour_minute">yyyy-MMM-dd HH:mm</string>
+    <string name="remove_reminder">Remove reminder?</string>
+    <string name="would_like_remove">You have a reminder scheduled for %s, would you like to remove it? </string>
+    <string name="add_tag">Add tag</string>
+    <string name="cant_add_existing_tag">Can\'t add an already existing tag</string>
+    <string name="cant_add_empty_tag">Can\'t add an empty tag</string>
+    <string name="choose_time_in_future">Please, choose a time in the future</string>
+    <string name="note_saved">Note saved</string>
+    <string name="name_required">A name for the note is required</string>
+
+    <!-- TaggedSheet.kt -->
+    <string name="notes_containing_tag">Notes containing tag: %s</string>
+
+    <!-- color_menu.xml -->
+    <string name="none">None</string>
+    <string name="red">Red</string>
+    <string name="blue">Blue</string>
+    <string name="green">Green</string>
+    <string name="pink">Pink</string>
+    <string name="purple">Purple</string>
+    <string name="yellow">Yellow</string>
+    <string name="orange">Orange</string>
+
+    <string-array name="theming_colors">
+        <item>@string/red</item>
+        <item>@string/pink</item>
+        <item>@string/purple</item>
+        <item>@string/blue</item>
+        <item>@string/green</item>
+        <item>@string/yellow</item>
+        <item>@string/orange</item>
+    </string-array>
+
+    <string-array name="theming_colors_values">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+        <item>5</item>
+        <item>6</item>
+    </string-array>
+
+    <!-- edit_tag.xml -->
+    <string name="tag">Tag</string>
+
+    <!-- select_menu.xml -->
+    <string name="select_all">Select all</string>
+    <string name="clear_selection">Clear selection</string>
+    <string name="delete_selection">Delete selection</string>
+
+    <!-- sort_menu.xml -->
+    <string name="recently_edited">Recently edited</string>
+    <string name="creation_date">Creation date</string>
+    <string name="alphabetically">Alphabetically</string>
+    <string name="reverse_order">Reverse order</string>
+
+    <string name="app_name">Grafobook</string>
+    <string name="action_settings">Settings</string>
+    <!-- Strings used for fragments for navigation -->
+
+    <!-- preferences.xml -->
+    <string name="theming">Theming</string>
+    <string name="accent_color">Accent color</string>
+    <string name="colors_dialog_title">Colors</string>
+    <string name="accent_color_desc">Set the application\'s accent color.</string>
+    <string name="dark_theme">Dark theme</string>
+    <string name="about_title">About</string>
+    <string name="about_desc">Grafobook is a free, open source application made by ByteSeb on 2021. Registered under the Apache License 2.0.</string>
+    <string name="youtube_channel_title">YouTube channel</string>
+    <string name="youtube_desc">App\'s creator YouTube channel, see the creation process for Grafobook.</string>
+    <string name="github_repo_title">GitHub repository</string>
+    <string name="github_desc">See the source code, report bugs or request features.</string>
+    <string name="version">Version</string>
+    <string name="dark_theme_disabled">You are using Android 10 or a higher version, this setting follows the system theme.</string>
+
+    <string name="new_note">New note</string>
+    <string name="disabled_new_note">Shortcut disabled</string>
+    <!-- Preference Titles -->
+
+    <!-- Messages Preferences -->
+
+    <!-- Sync Preferences -->
+</resources>

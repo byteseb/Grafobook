@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <color name="green">#4CAF70</color>
+    <color name="blue">#039be5</color>
+    <color name="red">#ef5350</color>
+    <color name="pink">#ED6B96</color>
+    <color name="purple">#B266D3</color>
+    <color name="yellow">#FFC45D</color>
+    <color name="orange">#FF7F43</color>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+    <color name="transparent">#00000000</color>
+    <color name="selectionColor">#FFFFFF</color>
+    
+    <color name="semi_green">#664CB070</color>
+    <color name="semi_blue">#66029AE6</color>
+    <color name="semi_red">#66F0524F</color>
+    <color name="semi_pink">#66ED6B96</color>
+    <color name="semi_purple">#66B366D4</color>
+    <color name="semi_yellow">#66FFC35C</color>
+    <color name="semi_orange">#66FF7E42</color>
+
+    <color name="semi_transparent">#CC1F1B24</color>
+    <color name="cardBackground">#2b2b2b</color>
+    <color name="fabFill">#000000</color>
+</resources>

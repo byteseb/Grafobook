@@ -9,9 +9,11 @@ import android.view.MotionEvent
 import android.view.View
 import android.widget.AdapterView
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.lifecycle.ViewModelProvider
 import androidx.preference.PreferenceManager
 import com.byteseb.grafobook.R
 import com.byteseb.grafobook.fragments.SettingsFragment
+import com.byteseb.grafobook.room.NoteViewModel
 import kotlinx.android.synthetic.main.activity_settings.*
 
 class SettingsActivity : AppCompatActivity() {
@@ -28,25 +30,25 @@ class SettingsActivity : AppCompatActivity() {
             ?.getBoolean("nightTheme", false)!!
 
         when(defColor){
-            MainActivity.Colors.RED.ordinal -> {
+            Colors.RED.ordinal -> {
                 setTheme(R.style.Theme_Grafobook_Red)
             }
-            MainActivity.Colors.BLUE.ordinal -> {
+            Colors.BLUE.ordinal -> {
                 setTheme(R.style.Theme_Grafobook_Blue)
             }
-            MainActivity.Colors.GREEN.ordinal -> {
+            Colors.GREEN.ordinal -> {
+                setTheme(R.style.Theme_Grafobook_Green)
+            }
+            Colors.ORANGE.ordinal -> {
                 setTheme(R.style.Theme_Grafobook)
             }
-            MainActivity.Colors.ORANGE.ordinal -> {
-                setTheme(R.style.Theme_Grafobook)
-            }
-            MainActivity.Colors.YELLOW.ordinal -> {
+            Colors.YELLOW.ordinal -> {
                 setTheme(R.style.Theme_Grafobook_Yellow)
             }
-            MainActivity.Colors.PINK.ordinal-> {
+            Colors.PINK.ordinal-> {
                 setTheme(R.style.Theme_Grafobook_Pink)
             }
-            MainActivity.Colors.PURPLE.ordinal -> {
+            Colors.PURPLE.ordinal -> {
                 setTheme(R.style.Theme_Grafobook_Purple)
             }
         }
@@ -66,6 +68,12 @@ class SettingsActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setCurrentTheme()
         setContentView(R.layout.activity_settings)
-        supportFragmentManager.beginTransaction().replace(R.id.settingsHolder, SettingsFragment()).commit()
+
+        val viewModel = ViewModelProvider(this).get(NoteViewModel::class.java)
+        val fragment = SettingsFragment()
+        supportFragmentManager.beginTransaction().replace(R.id.settingsHolder, fragment).commit()
+        viewModel.allNotes.observe(this){
+            fragment.setNotes(ArrayList(it))
+        }
     }
 }

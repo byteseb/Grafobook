@@ -39,25 +39,27 @@ class NotesAdapter(
 ) :
     ListAdapter<Note, NotesAdapter.NoteHolder>(NoteDiffUtilCallback()) {
 
-    var canSelect: Boolean = false
+    var selecting: Boolean = false
     val selection = ArrayList<Note>()
 
     fun setSelection(selectedNotes: ArrayList<Int>){
-        selection.clear()
-        for(noteIndex in selectedNotes){
-            selection.add(currentList[noteIndex])
-            notifyItemChanged(noteIndex)
+        runBlocking {
+            selection.clear()
+            for(noteIndex in selectedNotes){
+                selection.add(currentList[noteIndex])
+                notifyItemChanged(noteIndex)
+            }
         }
     }
 
     fun selectAll() {
         selection.clear()
-        canSelect = true
-        listener?.onCanCheckChanged(true)
+        selecting = true
         for (note in currentList) {
             selection.add(note)
             notifyItemChanged(currentList.indexOf(note))
         }
+        listener?.onSelectionUpdated(selecting, selection)
     }
 
     fun clearSelection() {
@@ -65,24 +67,37 @@ class NotesAdapter(
             notifyItemChanged(currentList.indexOf(item))
         }
         selection.clear()
-        canSelect = false
-        listener?.onCanCheckChanged(false)
+        selecting = false
+        listener?.onSelectionUpdated(selecting, selection)
+
     }
 
     fun deleteSelection() {
-        for (note in selection) {
-            notifyItemRemoved(currentList.indexOf(note))
+        for(i in selection.size -1 downTo 0){
+            val note = selection[i]
             deleteNote(note)
         }
         selection.clear()
-        canSelect = false
-        listener?.onCanCheckChanged(false)
+        selecting = false
+        listener?.onSelectionUpdated(selecting, selection)
     }
 
-    fun tagSelection(tags: ArrayList<String>) {
+    fun getDuplicated(note: Note): Note{
+        return Note(
+            name = note.name,
+            color = note.color,
+            favorite = note.favorite,
+            lastDate = note.lastDate,
+            creationDate = System.currentTimeMillis(),
+            tags = note.tags,
+            reminder = note.reminder,
+            content = note.content
+        )
+    }
+
+    fun duplicateSelection() {
         for (note in selection) {
-            notifyItemChanged(currentList.indexOf(note))
-            tagNote(note, tags)
+            insertNote(getDuplicated(note))
         }
         clearSelection()
     }
@@ -91,9 +106,8 @@ class NotesAdapter(
         viewModel?.delete(note)
     }
 
-    fun tagNote(note: Note, tags: ArrayList<String>) {
-        note.tags = tags
-        viewModel?.update(note)
+    fun insertNote(note: Note){
+        viewModel?.insert(note)
     }
 
     fun strokeColor(): Int {
@@ -123,12 +137,12 @@ class NotesAdapter(
             refreshSelected(note, cardView)
             cardView.setOnClickListener {
                 if (interactable) {
-                    if (canSelect) {
+                    if (selecting) {
                         //Selection mode is enabled. Toggle the selection on this note
                         if (selection.contains(note)) {
                             selection.remove(note)
                             if(selection.isEmpty()){
-                                canSelect = false
+                                selecting = false
                                 clearSelection()
                             }
                         } else {
@@ -145,10 +159,10 @@ class NotesAdapter(
             }
 
             cardView.setOnLongClickListener {
-                if (!canSelect) {
-                    canSelect = true
-                    listener?.onCanCheckChanged(true)
+                if (!selecting) {
+                    selecting = true
                     selection.add(note)
+                    listener?.onSelectionUpdated(selecting, selection)
                     refreshSelected(note, cardView)
                 }
                 true
@@ -244,6 +258,7 @@ class NotesAdapter(
                     cardView.strokeColor = ContextCompat.getColor(context, R.color.transparent)
                 }
             }
+            listener?.onSelectionUpdated(selecting, selection)
         }
 
         fun tintText(view: TextView, color: Int) {

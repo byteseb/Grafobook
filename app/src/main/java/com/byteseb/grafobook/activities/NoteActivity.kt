@@ -31,10 +31,12 @@ import com.byteseb.grafobook.listeners.setOnSingleClickListener
 import com.byteseb.grafobook.models.Filter
 import com.byteseb.grafobook.models.Note
 import com.byteseb.grafobook.room.NoteViewModel
+import com.byteseb.grafobook.room.NotesDB
 import com.byteseb.grafobook.utils.HtmlUtils
 import kotlinx.android.synthetic.main.activity_note.*
 import kotlinx.android.synthetic.main.activity_note.editFav
 import kotlinx.android.synthetic.main.note_card.*
+import kotlinx.coroutines.runBlocking
 import java.lang.IndexOutOfBoundsException
 import java.text.SimpleDateFormat
 import java.util.*
@@ -51,6 +53,7 @@ class NoteActivity : AppCompatActivity(), TagInterface {
     var tagsList = ArrayList<String>()
 
     val allTags = ArrayList<String>()
+    var edited: Boolean = false
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
@@ -75,6 +78,8 @@ class NoteActivity : AppCompatActivity(), TagInterface {
         RED, PINK, PURPLE, BLUE, GREEN, YELLOW, ORANGE
     }
 
+    private var hasAutoSave: Boolean = true
+
     fun setCurrentTheme() {
         val defColor = PreferenceManager.getDefaultSharedPreferences(this)
             ?.getInt("defaultColor", MainActivity.Colors.ORANGE.ordinal)!!
@@ -82,25 +87,25 @@ class NoteActivity : AppCompatActivity(), TagInterface {
             ?.getBoolean("nightTheme", false)!!
 
         when (defColor) {
-            MainActivity.Colors.RED.ordinal -> {
+            Colors.RED.ordinal -> {
                 setTheme(R.style.Theme_Grafobook_Red)
             }
-            MainActivity.Colors.BLUE.ordinal -> {
+            Colors.BLUE.ordinal -> {
                 setTheme(R.style.Theme_Grafobook_Blue)
             }
             MainActivity.Colors.GREEN.ordinal -> {
+                setTheme(R.style.Theme_Grafobook_Green)
+            }
+            Colors.ORANGE.ordinal -> {
                 setTheme(R.style.Theme_Grafobook)
             }
-            MainActivity.Colors.ORANGE.ordinal -> {
-                setTheme(R.style.Theme_Grafobook)
-            }
-            MainActivity.Colors.YELLOW.ordinal -> {
+            Colors.YELLOW.ordinal -> {
                 setTheme(R.style.Theme_Grafobook_Yellow)
             }
-            MainActivity.Colors.PINK.ordinal -> {
+            Colors.PINK.ordinal -> {
                 setTheme(R.style.Theme_Grafobook_Pink)
             }
-            MainActivity.Colors.PURPLE.ordinal -> {
+            Colors.PURPLE.ordinal -> {
                 setTheme(R.style.Theme_Grafobook_Purple)
             }
         }
@@ -115,6 +120,14 @@ class NoteActivity : AppCompatActivity(), TagInterface {
         }
     }
 
+    override fun onBackPressed() {
+        handleBack()
+    }
+
+    private fun handleBack() {
+        super.onBackPressed()
+    }
+
     var statusDefaultColor: Int = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -122,6 +135,8 @@ class NoteActivity : AppCompatActivity(), TagInterface {
         setCurrentTheme()
         setContentView(R.layout.activity_note)
         statusDefaultColor = window.statusBarColor
+        hasAutoSave = PreferenceManager.getDefaultSharedPreferences(this)
+            ?.getBoolean("autoSave", true)!!
         viewModel = ViewModelProvider(this).get(NoteViewModel::class.java)
 
         createNotChannel()
@@ -150,47 +165,85 @@ class NoteActivity : AppCompatActivity(), TagInterface {
         }
 
         initRecycler()
-
         loadData()
-        editContent.linksClickable = true
-        editContent.autoLinkMask = Linkify.WEB_URLS
-        editContent.movementMethod = LinkMovementMethod.getInstance()
 
         backButton.setOnClickListener {
-            super.onBackPressed()
+            handleBack()
         }
 
-        var oldScroll = 0
-        noteScroll.viewTreeObserver.addOnScrollChangedListener {
-            if(noteScroll.scrollY > oldScroll){
-                saveFAB.hide()
+        editFav.setOnCheckedChangeListener { buttonView, isChecked ->
+            if (buttonView.isPressed) {
+                autoSave()
             }
-            else if(noteScroll.scrollY < oldScroll){
-                saveFAB.show()
+        }
+
+        editName.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
             }
-            oldScroll = noteScroll.scrollY
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                edited = true
+                autoSave()
+
+            }
+
+            override fun afterTextChanged(s: Editable?) {
+            }
+
+        })
+
+        editContent.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+            }
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                edited = true
+                autoSave()
+            }
+
+            override fun afterTextChanged(s: Editable?) {
+            }
+        })
+
+        if (!hasAutoSave) {
+            saveFAB.visibility = View.VISIBLE
+            var oldScroll = 0
+            noteScroll.viewTreeObserver.addOnScrollChangedListener {
+                if (noteScroll.scrollY > oldScroll) {
+                    saveFAB.hide()
+                } else if (noteScroll.scrollY < oldScroll) {
+                    saveFAB.show()
+                }
+                oldScroll = noteScroll.scrollY
+            }
+        } else {
+            saveFAB.visibility = View.GONE
         }
 
         //Editor
         saveFAB.setOnClickListener {
-            editContent.isCursorVisible = false
             saveData()
         }
 
         boldButton.setOnClickListener {
             toggleSpan(StyleSpan(Typeface.BOLD))
+            edited = true
+            autoSave()
         }
         italButton.setOnClickListener {
             toggleSpan(StyleSpan(Typeface.ITALIC))
+            edited = true
+            autoSave()
         }
         underButton.setOnClickListener {
             toggleSpan(UnderlineSpan())
+            edited = true
+            autoSave()
         }
         strikeButton.setOnClickListener {
             toggleSpan(StrikethroughSpan())
-        }
-        headerButton.setOnClickListener {
-            toggleSpan(RelativeSizeSpan(1.25f))
+            edited = true
+            autoSave()
         }
         foregroundButton.setOnClickListener {
             val colorMenu = PopupMenu(this, foregroundButton)
@@ -231,6 +284,7 @@ class NoteActivity : AppCompatActivity(), TagInterface {
                     R.id.orangeItem -> {
                         foreColor = ContextCompat.getColor(this, R.color.orange)
                     }
+
                 }
                 if (canPaint) {
                     if (selectionHasStyle(ForegroundColorSpan(0))) {
@@ -242,6 +296,8 @@ class NoteActivity : AppCompatActivity(), TagInterface {
                         insertStyle(ForegroundColorSpan(foreColor))
                     }
                 }
+                edited = true
+                autoSave()
                 true
             }
             colorMenu.show()
@@ -296,6 +352,8 @@ class NoteActivity : AppCompatActivity(), TagInterface {
                         insertStyle(BackgroundColorSpan(foreColor))
                     }
                 }
+                edited = true
+                autoSave()
                 true
             }
             colorMenu.show()
@@ -339,6 +397,8 @@ class NoteActivity : AppCompatActivity(), TagInterface {
                     }
                 }
                 refreshColors()
+                edited = true
+                autoSave()
                 true
             }
             colorMenu.show()
@@ -371,6 +431,7 @@ class NoteActivity : AppCompatActivity(), TagInterface {
                                         calendar.set(Calendar.SECOND, 0)
                                         currentReminder = calendar.timeInMillis
                                         refreshReminder()
+                                        autoSave()
                                     } else {
                                         failDateTimePicker()
                                     }
@@ -413,6 +474,8 @@ class NoteActivity : AppCompatActivity(), TagInterface {
                 builder.setPositiveButton(android.R.string.ok) { dialog, which ->
                     currentReminder = -1
                     refreshReminder()
+                    edited = true
+                    autoSave()
                 }
                 builder.setNegativeButton(android.R.string.cancel) { dialog, which ->
                     dialog.cancel()
@@ -435,6 +498,7 @@ class NoteActivity : AppCompatActivity(), TagInterface {
                     if (!tagsList.contains(editTag.text.toString())) {
                         tagsList.add(editTag.text.toString())
                         this.adapter.submitList(ArrayList(tagsList))
+                        autoSave()
                     } else {
                         Toast.makeText(
                             this,
@@ -456,6 +520,8 @@ class NoteActivity : AppCompatActivity(), TagInterface {
         }
         clearButton.setOnClickListener {
             clearStyles()
+            edited = true
+            autoSave()
         }
     }
 
@@ -743,14 +809,10 @@ class NoteActivity : AppCompatActivity(), TagInterface {
             selectionEnd(),
             style::class.java
         )) {
-            if (style is StyleSpan) {
-                if ((char as StyleSpan).style == style.style) {
-                    return true
-                }
+            return if (style is StyleSpan) {
+                (char as StyleSpan).style == style.style
             } else {
-                if (char::class == style::class) {
-                    return true
-                }
+                char::class == style::class
             }
         }
         return false
@@ -776,15 +838,14 @@ class NoteActivity : AppCompatActivity(), TagInterface {
     }
 
     fun insertStyle(style: Any) {
-        try{
+        try {
             editContent.text.setSpan(
                 style,
                 selectionStart(),
                 selectionEnd(),
                 SpannableString.SPAN_INCLUSIVE_EXCLUSIVE
             )
-        }
-        catch(ex: IndexOutOfBoundsException){
+        } catch (ex: IndexOutOfBoundsException) {
 
         }
     }
@@ -801,53 +862,68 @@ class NoteActivity : AppCompatActivity(), TagInterface {
         return editContent.selectionEnd
     }
 
-    fun saveData() {
-        if (canSave()) {
-            editContent.clearComposingText()
-            if (note == null) {
-                //It is not an existing note, create a new one
-                note = Note(
-                    name = editName.text.toString(),
-                    favorite = editFav.isChecked,
-                    color = currentColor,
-                    creationDate = System.currentTimeMillis(),
-                    lastDate = System.currentTimeMillis(),
-                    tags = tagsList,
-                    reminder = currentReminder,
-                    content = HtmlUtils.toHtml(editContent.text)
-                )
-                viewModel.insert(note!!)
-                Toast.makeText(this, getString(R.string.note_saved), Toast.LENGTH_SHORT).show()
-                refreshDate()
-            } else {
-                //It is an existing note, update it
-                note = Note(
-                    id = note!!.id,
-                    name = editName.text.toString(),
-                    favorite = editFav.isChecked,
-                    color = currentColor,
-                    creationDate = note!!.creationDate,
-                    lastDate = System.currentTimeMillis(),
-                    tags = tagsList,
-                    reminder = currentReminder,
-                    content = HtmlUtils.toHtml(editContent.text)
-                )
-                viewModel.update(note!!)
-                Toast.makeText(this, getString(R.string.note_saved), Toast.LENGTH_SHORT).show()
-                refreshDate()
+    fun saveData(showToast: Boolean = true) {
+        editContent.clearComposingText()
+        if (note == null) {
+            //It is not an existing note, create a new one
+            note = Note(
+                name = getName(),
+                favorite = editFav.isChecked,
+                color = currentColor,
+                creationDate = System.currentTimeMillis(),
+                lastDate = System.currentTimeMillis(),
+                tags = tagsList,
+                reminder = currentReminder,
+                content = HtmlUtils.toHtml(editContent.text)
+            )
+            val context = this
+            runBlocking {
+                val id = NotesDB.getDB(context).noteDao().insert(note!!)
+                note?.id = id.toInt()
             }
+            if (showToast) {
+                Toast.makeText(this, getString(R.string.note_saved), Toast.LENGTH_SHORT).show()
+            }
+            refreshDate()
         } else {
-            Toast.makeText(this, getString(R.string.name_required), Toast.LENGTH_SHORT).show()
+            //It is an existing note, update it
+            note = Note(
+                id = note!!.id,
+                name = getName(),
+                favorite = editFav.isChecked,
+                color = currentColor,
+                creationDate = note!!.creationDate,
+                lastDate = System.currentTimeMillis(),
+                tags = tagsList,
+                reminder = currentReminder,
+                content = HtmlUtils.toHtml(editContent.text)
+            )
+            viewModel.update(note!!)
+            if (showToast) {
+                Toast.makeText(this, getString(R.string.note_saved), Toast.LENGTH_SHORT).show()
+            }
+            refreshDate()
         }
     }
 
-    fun canSave(): Boolean {
-        return editName.text.toString().trim().isNotEmpty()
+    fun autoSave() {
+        if (hasAutoSave) {
+            saveData(false)
+        }
+    }
+
+    fun getName(): String {
+        if (editName.text.toString().isNotEmpty()) {
+            return editName.text.toString()
+        } else {
+            return getString(R.string.default_note_name)
+        }
     }
 
     override fun onCloseTag(string: String) {
-        val index = tagsList.indexOf(string)
         tagsList.remove(string)
         adapter.submitList(ArrayList(tagsList))
+        edited = true
+        autoSave()
     }
 }

@@ -3,7 +3,7 @@
     <string name="app_name">Grafobook</string>
     <string name="empty_place">Qué lugar tan vacío…</string>
     <string name="try_creating_note">Prueba a crear una nota</string>
-    <string name="selecting">Seleccionando</string>
+    <string name="selection_amount">Selección (%s)</string>
     <string name="search">Buscar</string>
     <string name="sort_button_desc">Ordenar</string>
     <string name="select_button_desc">Seleccionar</string>
@@ -48,9 +48,11 @@
     <string name="yellow">Amarillo</string>
     <string name="orange">Naranja</string>
     <string name="tag">Etiqueta</string>
-    <string name="select_all">Seleccionar todo</string>
-    <string name="clear_selection">Limpiar selección</string>
-    <string name="delete_selection">Borrar selección</string>
+    <string name="select_all">Todo</string>
+    <string name="clear_selection">Cancelar</string>
+    <string name="duplicate_selection">Duplicar</string>
+    <string name="delete_selection">Borrar</string>
+    <string name="share_selection">Compartir</string>
     <string name="recently_edited">Editado recientemente</string>
     <string name="creation_date">Fecha de creación</string>
     <string name="alphabetically">Alfabéticamente</string>
@@ -72,4 +74,28 @@
     <string name="new_note">Nueva nota</string>
     <string name="disabled_new_note">Atajo desactivado</string>
     <string name="empty_icon">Ícono vacío</string>
+    <!-- main_menu.xml -->
+    <string name="selection">Selección</string>
+    <string name="sorting">Orden</string>
+    <string name="settings">Ajustes</string>
+    <string name="share_as">Compartir nota(s) como:</string>
+    <string name="html_file">Archivo .html</string>
+    <string name="grafo_file">Archivo .gfbk</string>
+    <string name="html_desc">Comparte tu nota como un archivo HTML. Si son varias, los archivos se van a comprimir en un archivo .zip. No puedes importar este tipo de archivos a Grafobook.</string>
+    <string name="grafo_desc">Se guardan todas las notas en un sólo archivo que puedes compartir con quien quieras. Ellos podrán importarlo directamente a Grafobook.</string>
+    <string name="preferences">Preferencias</string>
+    <string name="auto_save">Guardado automático</string>
+    <string name="auto_save_desc">Guarda notas automáticamente cuando algún cambio es detectado.</string>
+    <string name="send_to">Enviar a…</string>
+    <string name="import_notes">Importar nota(s):</string>
+    <string name="import_desc">Abre un archivo .gfbk y presiona el botón de \"Importar\".</string>
+    <string name="failed_create">Error al crear archivo</string>
+    <string name="import_item">Importar</string>
+    <string name="browse">Escoger</string>
+    <string name="error_reading_file">"Error al leer el archivo (Tal vez está corrupto, tiene un formato inválido o no es un archivo .gfbk). "</string>
+    <string name="import_amount">Importar(%s)</string>
+    <string name="backup">Copia de seguridad</string>
+    <string name="generate_backup">Generar copia de seguridad</string>
+    <string name="generate_backup_desc">Guarda todas tus notas en un archivo .gfbk.</string>
+    <string name="backup_file_name">copia.gfbk</string>
 </resources>

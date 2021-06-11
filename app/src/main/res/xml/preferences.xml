@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.preference.PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+<androidx.preference.PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
     <androidx.preference.PreferenceCategory android:title="@string/theming">
         <ListPreference
             android:dialogTitle="@string/colors_dialog_title"
@@ -14,6 +15,23 @@
             android:key="backgroundColor"
             android:title="@string/dark_theme" />
     </androidx.preference.PreferenceCategory>
+
+    <PreferenceCategory android:title="@string/backup">
+        <Preference
+            android:key="getBackup"
+            android:title="@string/generate_backup"
+            android:summary="@string/generate_backup_desc"
+            />
+    </PreferenceCategory>
+
+    <PreferenceCategory app:title="@string/preferences">
+        <SwitchPreference
+            android:defaultValue="true"
+            android:key="autoSave"
+            android:title="@string/auto_save"
+            android:summary="@string/auto_save_desc"
+            />
+    </PreferenceCategory>
 
     <androidx.preference.PreferenceCategory android:title="@string/about_title">
         <Preference

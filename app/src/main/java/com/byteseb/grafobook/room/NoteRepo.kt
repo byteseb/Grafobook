@@ -8,8 +8,8 @@ class NoteRepo(private val dao: NoteDao) {
     val allNotes: LiveData<List<Note>> = dao.getAll()
     val liveTags: LiveData<List<String>> = dao.getTags()
 
-    suspend fun insert(note: Note){
-        dao.insert(note)
+    suspend fun insert(note: Note): Long{
+        return dao.insert(note)
     }
 
     suspend fun delete(notes: Note){

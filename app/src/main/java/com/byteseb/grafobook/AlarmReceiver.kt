@@ -32,13 +32,12 @@ class AlarmReceiver : BroadcastReceiver() {
             builder.color = Color.parseColor(color)
         }
         builder.priority = NotificationCompat.PRIORITY_DEFAULT
-        builder.setOngoing(true)
         builder.setAutoCancel(true)
 
         val noteIntent = Intent(context, NoteActivity::class.java)
         noteIntent.putExtras(bundle!!)
         noteIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        val pending = PendingIntent.getActivity(context, 0, noteIntent, PendingIntent.FLAG_UPDATE_CURRENT)
+        val pending = PendingIntent.getActivity(context, 0, noteIntent, PendingIntent.FLAG_CANCEL_CURRENT)
         builder.setContentIntent(pending)
 
         val notManager = NotificationManagerCompat.from(context)

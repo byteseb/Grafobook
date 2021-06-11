@@ -11,10 +11,11 @@
         <item name="colorOnSecondary">@color/black</item>
         <item name="colorAccent">@color/orange</item>
         <!-- Status bar color. -->
-        <item name="android:statusBarColor">?attr/colorSurface</item>
-        <item name="android:navigationBarColor">?attr/colorSurface</item>
+        <item name="android:statusBarColor">@color/background</item>
+        <item name="android:navigationBarColor">@color/background</item>
         <item name="android:fontFamily">@font/poppins_medium</item>
         <item name="shapeAppearanceLargeComponent">@style/shapeAppearance</item>
+        <item name="popupMenuBackground">@drawable/popup_back</item>
     </style>
 
     <style name="Theme.Grafobook.Red" parent="Theme.Grafobook">
@@ -97,6 +98,10 @@
     <style name="shapeAppearance" parent="ShapeAppearance.MaterialComponents.LargeComponent">
         <item name="cornerFamily">rounded</item>
         <item name="cornerSize">15dp</item>
+    </style>
+
+    <style name="popupStyle" parent="Widget.AppCompat.PopupMenu">
+        <item name="background">@drawable/popup_back</item>
     </style>
 
     <style name="chipFont">

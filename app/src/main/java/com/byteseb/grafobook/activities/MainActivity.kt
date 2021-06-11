@@ -1,5 +1,7 @@
 package com.byteseb.grafobook.activities
 
+import android.animation.Animator
+import android.animation.AnimatorListenerAdapter
 import android.app.*
 import android.content.Context
 import android.content.Intent
@@ -8,19 +10,21 @@ import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.TypedValue
-import android.view.Menu
 import android.view.View
-import android.view.animation.TranslateAnimation
 import android.widget.PopupMenu
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.content.ContextCompat
+import androidx.core.content.FileProvider
+import androidx.core.view.size
 import androidx.lifecycle.ViewModelProvider
 import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.byteseb.grafobook.AlarmReceiver
+import com.byteseb.grafobook.BuildConfig
 import com.byteseb.grafobook.R
 import com.byteseb.grafobook.adapters.FilterAdapter
 import com.byteseb.grafobook.adapters.NotesAdapter
@@ -28,17 +32,27 @@ import com.byteseb.grafobook.listeners.setOnSingleClickListener
 import com.byteseb.grafobook.models.Filter
 import com.byteseb.grafobook.models.Note
 import com.byteseb.grafobook.room.NoteViewModel
+import com.byteseb.grafobook.sheets.ShareOptions
 import com.byteseb.grafobook.utils.HtmlUtils
+import com.google.gson.Gson
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.activity_note.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import java.io.*
+import java.lang.Exception
+import java.util.zip.ZipEntry
+import java.util.zip.ZipOutputStream
 
 interface MainInterface {
     fun onFavFilterChecked(value: Boolean)
     fun onTagFilterChecked(tag: String, value: Boolean)
-    fun onCanCheckChanged(value: Boolean)
+    fun onSelectionUpdated(canCheck: Boolean, selection: ArrayList<Note>)
 }
 
-class MainActivity : AppCompatActivity(), MainInterface {
+class MainActivity : AppCompatActivity(), MainInterface, ShareOptions.ShareOptionsInterface {
 
     lateinit var alarmManager: AlarmManager
     lateinit var notManager: NotificationManager
@@ -58,22 +72,18 @@ class MainActivity : AppCompatActivity(), MainInterface {
 
     val CHANNEL_ID = "grafobook.reminderchannel"
 
-    enum class Colors{
+    enum class Colors {
         RED, PINK, PURPLE, BLUE, GREEN, YELLOW, ORANGE
     }
 
-    enum class Backgrounds{
-        LIGHT, DARK
-    }
-
-    fun setCurrentTheme(){
+    fun setCurrentTheme() {
 
         val defColor = PreferenceManager.getDefaultSharedPreferences(this)
             ?.getInt("defaultColor", Colors.ORANGE.ordinal)!!
         val defBack = PreferenceManager.getDefaultSharedPreferences(this)
             ?.getBoolean("nightTheme", false)!!
 
-        when(defColor){
+        when (defColor) {
             Colors.RED.ordinal -> {
                 setTheme(R.style.Theme_Grafobook_Red)
             }
@@ -81,7 +91,7 @@ class MainActivity : AppCompatActivity(), MainInterface {
                 setTheme(R.style.Theme_Grafobook_Blue)
             }
             Colors.GREEN.ordinal -> {
-                setTheme(R.style.Theme_Grafobook)
+                setTheme(R.style.Theme_Grafobook_Green)
             }
             Colors.ORANGE.ordinal -> {
                 setTheme(R.style.Theme_Grafobook)
@@ -89,20 +99,18 @@ class MainActivity : AppCompatActivity(), MainInterface {
             Colors.YELLOW.ordinal -> {
                 setTheme(R.style.Theme_Grafobook_Yellow)
             }
-            Colors.PINK.ordinal-> {
+            Colors.PINK.ordinal -> {
                 setTheme(R.style.Theme_Grafobook_Pink)
             }
             Colors.PURPLE.ordinal -> {
                 setTheme(R.style.Theme_Grafobook_Purple)
             }
         }
-
-        if(Build.VERSION.SDK_INT < Build.VERSION_CODES.Q){
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
             //If it is a version lower than Q, set the theme manually
-            if(!defBack){
+            if (!defBack) {
                 AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
-            }
-            else{
+            } else {
                 AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
             }
         }
@@ -185,7 +193,7 @@ class MainActivity : AppCompatActivity(), MainInterface {
         val intent = Intent(this, AlarmReceiver::class.java)
         intent.putExtras(getBundle(note))
         val pendingIntent =
-            PendingIntent.getBroadcast(this, note.id, intent, PendingIntent.FLAG_UPDATE_CURRENT)
+            PendingIntent.getBroadcast(this, note.id, intent, PendingIntent.FLAG_CANCEL_CURRENT)
         if (time != -1L && time > System.currentTimeMillis()) {
             //If reminder exists and has not passed
             alarmManager.set(AlarmManager.RTC_WAKEUP, time, pendingIntent)
@@ -224,21 +232,15 @@ class MainActivity : AppCompatActivity(), MainInterface {
         notesAdapter?.submitList(applyFilters())
     }
 
-    override fun onCanCheckChanged(value: Boolean) {
-        if(value){
-            selectingText.text = getString(R.string.selecting)
-        }
-        else{
-            selectingText.text = ""
-        }
+    override fun onSelectionUpdated(canCheck: Boolean, selection: ArrayList<Note>) {
+
     }
 
     override fun onBackPressed() {
-        if(notesAdapter?.canSelect!!){
+        if (notesAdapter?.selecting!!) {
             notesAdapter?.clearSelection()
             notesAdapter?.submitList(applyFilters())
-        }
-        else{
+        } else {
             super.onBackPressed()
         }
     }
@@ -246,9 +248,9 @@ class MainActivity : AppCompatActivity(), MainInterface {
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         val selectedIndexes = ArrayList<Int>()
-        val canSelect = notesAdapter?.canSelect
-        if(canSelect!!){
-            for(note in notesAdapter!!.selection){
+        val canSelect = notesAdapter?.selecting
+        if (canSelect!!) {
+            for (note in notesAdapter!!.selection) {
                 selectedIndexes.add(notesAdapter?.currentList!!.indexOf(note))
             }
             outState.putIntegerArrayList("selectedIndexes", selectedIndexes)
@@ -262,30 +264,30 @@ class MainActivity : AppCompatActivity(), MainInterface {
 
     override fun onRestoreInstanceState(savedInstanceState: Bundle) {
         super.onRestoreInstanceState(savedInstanceState)
-        val canSelect = savedInstanceState.getBoolean("canSelect")
+        val selecting = savedInstanceState.getBoolean("canSelect")
         filterFavorites = savedInstanceState.getBoolean("filterFavorites")
-        currentFilters = savedInstanceState.getStringArrayList("currentFilters") as ArrayList<String>
+        currentFilters =
+            savedInstanceState.getStringArrayList("currentFilters") as ArrayList<String>
 
-        if(canSelect){
-            notesAdapter?.canSelect = canSelect
-            onCanCheckChanged(canSelect)
+        if (selecting) {
+            notesAdapter?.selecting = selecting
+            onSelectionUpdated(selecting, notesAdapter?.selection!!)
             notesAdapter?.setSelection(savedInstanceState.getIntegerArrayList("selectedIndexes") as ArrayList<Int>)
         }
 
         val query = savedInstanceState.getString("query")
-        if(query.isNullOrEmpty()){
+        if (query.isNullOrEmpty()) {
             notesAdapter?.submitList(applyFilters())
-        }
-        else{
+        } else {
             notesAdapter?.submitList(applyFilters(query))
         }
 
         //Adds first filter chip, will always be the favorites filter
-        if(filterList.isNotEmpty()){
+        if (filterList.isNotEmpty()) {
             filterList[0].checked = filterFavorites
             runBlocking {
-                for (filter in filterAdapter?.currentList!!){
-                    if(!filter.favFilter){
+                for (filter in filterAdapter?.currentList!!) {
+                    if (!filter.favFilter) {
                         filter.checked = currentFilters.contains(filter.text)
                     }
                 }
@@ -301,10 +303,84 @@ class MainActivity : AppCompatActivity(), MainInterface {
 
         viewModel = ViewModelProvider(this).get(NoteViewModel::class.java)
 
-        notesAdapter = NotesAdapter(this, fragmentManager = supportFragmentManager, viewModel = viewModel, listener = this)
+        notesAdapter = NotesAdapter(
+            this,
+            fragmentManager = supportFragmentManager,
+            viewModel = viewModel,
+            listener = this
+        )
         recycler.adapter = notesAdapter
         recycler.layoutManager =
             GridLayoutManager(this, resources.getInteger(R.integer.column_count))
+
+        nestedScroll.setOnScrollChangeListener { v, scrollX, scrollY, oldScrollX, oldScrollY ->
+
+            if (nestedScroll.scrollY > oldScrollY) {
+                searchDock.animate()
+                    .translationY(searchDock.height.toFloat())
+                    .alpha(0f)
+                    .setListener(object : AnimatorListenerAdapter() {
+                        override fun onAnimationEnd(animation: Animator?) {
+                            super.onAnimationEnd(animation)
+                            searchDock.clearAnimation()
+//                                searchDock.visibility = View.GONE
+                        }
+                    })
+                    .duration = 150
+            } else if (nestedScroll.scrollY < oldScrollY) {
+                searchDock.visibility = View.VISIBLE
+                searchDock.animate()
+                    .translationY(0f)
+                    .alpha(1f)
+                    .setListener(object : AnimatorListenerAdapter() {
+                        override fun onAnimationEnd(animation: Animator?) {
+                            super.onAnimationEnd(animation)
+                        }
+                    })
+                    .duration = 150
+            }
+        }
+
+        refreshLayout.setColorSchemeColors(accentColor())
+        refreshLayout.setProgressBackgroundColorSchemeColor(
+            ContextCompat.getColor(
+                this,
+                R.color.cardBackground
+            )
+        )
+        refreshLayout.setOnRefreshListener {
+            CoroutineScope(Dispatchers.IO).launch {
+                notesList.clear()
+
+                clearAlarms()
+                remindersList.clear()
+
+                filterList.clear()
+                //Adds first filter chip, will always be the favorites filter
+                filterList.add(Filter(getString(R.string.favorites), filterFavorites, true))
+                for (note in viewModel.allNotes.value!!) {
+                    if (note.reminder != -1L) {
+                        remindersList.add(setAlarm(note))
+                    }
+                    for (tag in note.tags) {
+                        val filter = Filter(tag, currentFilters.contains(tag), false)
+                        if (!filterList.contains(filter)) {
+                            filterList.add(filter)
+                        }
+                    }
+                    notesList.add(note)
+                }
+
+                emptyVisibility()
+                notesAdapter?.submitList(applyFilters())
+                filterAdapter?.submitList(ArrayList(filterList))
+                refreshLayout.isRefreshing = false
+            }
+        }
+
+        recycler.setOnClickListener {
+            println("Touched")
+        }
 
         //Loading notes & reminders
         viewModel.allNotes.observe(this) {
@@ -322,7 +398,7 @@ class MainActivity : AppCompatActivity(), MainInterface {
                 }
                 for (tag in note.tags) {
                     val filter = Filter(tag, currentFilters.contains(tag), false)
-                    if(!filterList.contains(filter)){
+                    if (!filterList.contains(filter)) {
                         filterList.add(filter)
                     }
                 }
@@ -350,12 +426,52 @@ class MainActivity : AppCompatActivity(), MainInterface {
             startActivity(intent)
         }
 
-        val sortMenu = PopupMenu(this, sortButton)
-        sortMenu.menuInflater.inflate(R.menu.sort_menu, sortMenu.menu)
-        sortButton.setOnClickListener {
-            initSortMenu(sortMenu.menu)
-            sortMenu.setOnMenuItemClickListener {
+        menuButton.setOnSingleClickListener {
+            val menu = PopupMenu(this, menuButton)
+            menu.menuInflater.inflate(R.menu.main_menu, menu.menu)
+
+            val settingsIndex = 0
+            val importIndex = 1
+            val sortIndex = 2
+            val selectIndex = 3
+
+            //Sorting menu
+            val prevInvert = isSortReversed()
+            val defSort = getSharedPreferences("preferences", Context.MODE_PRIVATE)
+                ?.getInt("defaultSort", 0)
+            menu.menu.getItem(sortIndex).subMenu.getItem(1).isChecked = defSort == Sort.ALPHA.ordinal
+            menu.menu.getItem(sortIndex).subMenu.getItem(2).isChecked = defSort == Sort.CREATION.ordinal
+            menu.menu.getItem(sortIndex).subMenu.getItem(3).isChecked = defSort == Sort.RECENT.ordinal
+            //Reverse item
+            menu.menu.getItem(sortIndex).subMenu.getItem(0).isChecked = prevInvert
+
+            //Selection menu
+            //Selection title
+            val selectionTitle: String = if (notesAdapter?.selecting!!) {
+                getString(R.string.selection_amount, notesAdapter?.selection?.size.toString())
+            } else {
+                getString(R.string.selection)
+            }
+            menu.menu.getItem(selectIndex).title = selectionTitle
+            //Select all item
+            menu.menu.getItem(selectIndex).subMenu.getItem(4).isEnabled = notesList.isNotEmpty()
+            //All other selection options (cancel, duplicate, share, delete...)
+            for (index in 0 until menu.menu.getItem(selectIndex).subMenu.size - 1) {
+                //Apply this for all items excepting the select all item
+                menu.menu.getItem(selectIndex).subMenu.getItem(index).isEnabled =
+                    notesAdapter?.selecting!! && notesAdapter?.selection!!.isNotEmpty()
+            }
+
+            //Click
+            menu.setOnMenuItemClickListener {
                 when (it.itemId) {
+                    R.id.importItem -> {
+                        if (notesAdapter?.selecting!!) {
+                            notesAdapter?.clearSelection()
+                        }
+                        val intent = Intent(this, ImportActivity::class.java)
+                        startActivity(intent)
+                    }
                     R.id.sortRecent -> {
                         saveSort(Sort.RECENT.ordinal)
                     }
@@ -368,56 +484,43 @@ class MainActivity : AppCompatActivity(), MainInterface {
                     R.id.sortReverse -> {
                         saveReverseSort(!isSortReversed())
                     }
-                }
-                notesAdapter?.submitList(applyFilters())
-                true
-            }
-            sortMenu.show()
-        }
-
-        val selectMenu = PopupMenu(this, selectButton)
-        selectMenu.menuInflater.inflate(R.menu.select_menu, selectMenu.menu)
-        selectButton.setOnClickListener {
-            selectMenu.menu.getItem(0).isEnabled = notesAdapter?.currentList!!.isNotEmpty()
-            if (notesAdapter?.selection!!.isEmpty()) {
-                for (index in 1..2) {
-                    selectMenu.menu.getItem(index).isEnabled = false
-                }
-            }
-            else{
-                for(index in 1..2){
-                    selectMenu.menu.getItem(index).isEnabled = true
-                }
-            }
-            selectMenu.setOnMenuItemClickListener {
-                when (it.itemId) {
                     R.id.selectAll -> {
                         notesAdapter?.selectAll()
                     }
                     R.id.selectClear -> {
                         notesAdapter?.clearSelection()
                     }
+                    R.id.selectDuplicate -> {
+                        notesAdapter?.duplicateSelection()
+                    }
+                    R.id.selectShare -> {
+                        val shareOptions = ShareOptions()
+                        shareOptions.show(supportFragmentManager, "shareOptions")
+                    }
                     R.id.selectDelete -> {
                         val builder = AlertDialog.Builder(this)
                         builder.setTitle(R.string.delete_notes)
                         builder.setMessage(getString(R.string.want_to_delete_notes))
-                        builder.setPositiveButton(android.R.string.ok){dialog, which ->
+                        builder.setPositiveButton(android.R.string.ok) { dialog, which ->
                             notesAdapter?.deleteSelection()
                         }
-                        builder.setNegativeButton(android.R.string.cancel){dialog, which ->
+                        builder.setNegativeButton(android.R.string.cancel) { dialog, which ->
                             dialog.cancel()
                         }
                         builder.show()
                     }
+                    R.id.settingsItem -> {
+                        if (notesAdapter?.selecting!!) {
+                            notesAdapter?.clearSelection()
+                        }
+                        val intent = Intent(this, SettingsActivity::class.java)
+                        startActivity(intent)
+                    }
                 }
+                notesAdapter?.submitList(applyFilters())
                 true
             }
-            selectMenu.show()
-        }
-
-        optionsButton.setOnSingleClickListener {
-            val intent = Intent(this, SettingsActivity::class.java)
-            startActivity(intent)
+            menu.show()
         }
 
         editSearch.addTextChangedListener(object : TextWatcher {
@@ -501,30 +604,6 @@ class MainActivity : AppCompatActivity(), MainInterface {
         }
     }
 
-    fun initSortMenu(menu: Menu) {
-        val prevInvert = isSortReversed()
-        val defSort = getSharedPreferences("preferences", Context.MODE_PRIVATE)
-            ?.getInt("defaultSort", 0)
-        when (defSort) {
-            Sort.ALPHA.ordinal -> {
-                checkItem(menu, Sort.ALPHA.ordinal)
-            }
-            Sort.RECENT.ordinal -> {
-                checkItem(menu, Sort.RECENT.ordinal)
-            }
-            Sort.CREATION.ordinal -> {
-                checkItem(menu, Sort.CREATION.ordinal)
-            }
-        }
-        menu.getItem(3).isChecked = prevInvert
-    }
-
-    fun checkItem(menu: Menu, index: Int) {
-        for (i in 0..2) {
-            menu.getItem(i).isChecked = i == index
-        }
-    }
-
     fun saveSort(value: Int) {
         getSharedPreferences("preferences", Context.MODE_PRIVATE).edit()
             .putInt("defaultSort", value).apply()
@@ -533,5 +612,131 @@ class MainActivity : AppCompatActivity(), MainInterface {
     private fun saveReverseSort(value: Boolean) {
         val pref = getSharedPreferences("preferences", Context.MODE_PRIVATE)
         pref?.edit()?.putBoolean("reverseSort", value)?.apply()
+    }
+
+    override fun onOptionSelected(option: Int) {
+        when (option) {
+            ShareOptions.Options.GRAFO_FILE.ordinal -> {
+                //Saving list into json
+                val gson = Gson()
+                val name = "notes"
+                val extension = ".gfbk"
+                val file = File.createTempFile(name, extension, cacheDir)
+                val data = gson.toJson(notesAdapter?.selection)
+                //Writing data to temporary file
+                try {
+                    val writer = FileWriter(file)
+                    writer.append(data)
+                    writer.flush()
+                    writer.close()
+                    val uri = FileProvider.getUriForFile(
+                        this,
+                        BuildConfig.APPLICATION_ID + ".fileprovider",
+                        file
+                    )
+                    val shareIntent = Intent().apply {
+                        action = Intent.ACTION_SEND
+                        flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
+                        putExtra(Intent.EXTRA_STREAM, uri)
+                        type = "application/grafobook"
+                    }
+                    startActivity(
+                        Intent.createChooser(
+                            shareIntent,
+                            resources.getText(R.string.send_to)
+                        )
+                    )
+                } catch (ex: Exception) {
+                    Toast.makeText(this, getString(R.string.failed_create), Toast.LENGTH_SHORT).show()
+                }
+            }
+            ShareOptions.Options.HTML_FILE.ordinal -> {
+                if(notesAdapter?.selection?.size!! == 1){
+                    //Make single html file
+                    val name = "notes"
+                    val extension = ".html"
+                    val file = File.createTempFile(name, extension, cacheDir)
+                    val data = notesAdapter?.selection!![0].content
+                    //Writing data to temporary file
+                    try {
+                        val writer = FileWriter(file)
+                        writer.append(data)
+                        writer.flush()
+                        writer.close()
+                        val uri = FileProvider.getUriForFile(
+                            this,
+                            BuildConfig.APPLICATION_ID + ".fileprovider",
+                            file
+                        )
+                        val shareIntent = Intent().apply {
+                            action = Intent.ACTION_SEND
+                            flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
+                            putExtra(Intent.EXTRA_STREAM, uri)
+                            type = "text/html"
+                        }
+                        startActivity(
+                            Intent.createChooser(
+                                shareIntent,
+                                resources.getText(R.string.send_to)
+                            )
+                        )
+                    } catch (ex: Exception) {
+                        Toast.makeText(this, getString(R.string.failed_create), Toast.LENGTH_SHORT).show()
+                    }
+                }else if(notesAdapter?.selection?.size!! > 1){
+                    //Make zip that contains html files
+                    val zipName = "notes"
+                    val zipExtension = ".zip"
+                    val zipFile = File.createTempFile(zipName, zipExtension, cacheDir)
+                    val zipStream =
+                        ZipOutputStream(FileOutputStream(zipFile))
+                    val extension = ".html"
+
+                    for (index in notesAdapter?.selection!!.indices) {
+                        try {
+                            //Creating single html file
+                            val number = index + 1
+                            val name = "note$number"
+                            val file = File.createTempFile(name, extension, cacheDir)
+                            val note = notesAdapter?.selection!![index]
+
+                            val writer = FileWriter(file)
+                            writer.append(note.content)
+                            writer.flush()
+                            writer.close()
+
+                            //Adding file to zip
+                            val fi = FileInputStream(file)
+                            val origin = BufferedInputStream(fi)
+                            val entry = ZipEntry(name + extension)
+                            zipStream.putNextEntry(entry)
+                            origin.copyTo(zipStream, 1024)
+                            origin.close()
+                        } catch (ex: IOException) {
+                            Toast.makeText(this, getString(R.string.failed_create), Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                    zipStream.close()
+
+                    val uri = FileProvider.getUriForFile(
+                        this,
+                        BuildConfig.APPLICATION_ID + ".fileprovider",
+                        zipFile
+                    )
+                    val shareIntent = Intent().apply {
+                        action = Intent.ACTION_SEND
+                        flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
+                        putExtra(Intent.EXTRA_STREAM, uri)
+                        type = "application/zip"
+                    }
+                    startActivity(
+                        Intent.createChooser(
+                            shareIntent,
+                            resources.getText(R.string.send_to)
+                        )
+                    )
+                }
+            }
+        }
     }
 }

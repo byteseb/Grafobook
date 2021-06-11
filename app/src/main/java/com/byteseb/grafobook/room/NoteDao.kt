@@ -8,7 +8,7 @@ import com.byteseb.grafobook.models.Note
 interface NoteDao {
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
-    suspend fun insert(note: Note)
+    suspend fun insert(note: Note): Long
 
     @Delete
     suspend fun delete(note: Note)

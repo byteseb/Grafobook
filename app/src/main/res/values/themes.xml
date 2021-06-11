@@ -2,6 +2,7 @@
     <!-- Base application theme. -->
     <style name="Theme.Grafobook" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <!-- Primary brand color. -->
+        <item name="android:windowBackground">@color/background</item>
         <item name="colorPrimary">@color/orange</item>
         <item name="colorPrimaryVariant">@color/orange</item>
         <item name="colorOnPrimary">@color/white</item>
@@ -14,6 +15,7 @@
         <item name="android:statusBarColor" tools:targetApi="l">?attr/colorPrimaryVariant</item>
         <item name="android:fontFamily">@font/poppins_medium</item>
         <item name="shapeAppearanceLargeComponent">@style/shapeAppearance</item>
+        <item name="popupMenuStyle">@style/popupStyle</item>
     </style>
 
     <style name="Theme.Grafobook.Red" parent="Theme.Grafobook">
@@ -108,6 +110,10 @@
     <style name="shapeAppearance" parent="ShapeAppearance.MaterialComponents.LargeComponent">
         <item name="cornerFamily">rounded</item>
         <item name="cornerSize">15dp</item>
+    </style>
+    
+    <style name="popupStyle" parent="Widget.AppCompat.PopupMenu">
+        <item name="background">@drawable/popup_back</item>
     </style>
 
     <style name="chipFont">

@@ -1,25 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="green">#4CAF70</color>
-    <color name="blue">#039be5</color>
-    <color name="red">#ef5350</color>
-    <color name="pink">#ED6B96</color>
-    <color name="purple">#B266D3</color>
-    <color name="yellow">#FFC45D</color>
-    <color name="orange">#FF7F43</color>
+    <color name="background">#FAFAFA</color>
+    <color name="green">#66BB6A</color>
+    <color name="blue">#42A5F5</color>
+    <color name="red">#EF5350</color>
+    <color name="pink">#EC407A</color>
+    <color name="purple">#AB47BC</color>
+    <color name="yellow">#FFB74D</color>
+    <color name="orange">#FB8C00</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
-    <color name="semi_transparent">#CBFFFFFF</color>
+    <color name="semi_transparent">#26F7F7F7</color>
     <color name="transparent">#00000000</color>
     <color name="selectionColor">#000000</color>
 
-    <color name="semi_green">#664CB070</color>
-    <color name="semi_blue">#66029AE6</color>
+    <color name="semi_green">#6666BA6B</color>
+    <color name="semi_blue">#6642A4F5</color>
     <color name="semi_red">#66F0524F</color>
-    <color name="semi_pink">#66ED6B96</color>
-    <color name="semi_purple">#66B366D4</color>
-    <color name="semi_yellow">#66FFC35C</color>
-    <color name="semi_orange">#66FF7E42</color>
+    <color name="semi_pink">#66ED407A</color>
+    <color name="semi_purple">#66AB48BD</color>
+    <color name="semi_yellow">#66FFB84D</color>
+    <color name="semi_orange">#66FA8900</color>
     <color name="cardBackground">#FFFFFF</color>
     <color name="fabFill">#FFFFFF</color>
 </resources>

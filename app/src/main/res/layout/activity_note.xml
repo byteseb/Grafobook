@@ -5,7 +5,6 @@
     android:id="@+id/noteConstraint"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="?attr/colorSurface"
     tools:context=".activities.NoteActivity">
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -18,10 +17,11 @@
         android:contentDescription="@string/save_fab_desc"
         android:focusable="true"
         android:tint="@color/fabFill"
+        android:visibility="gone"
         app:layout_constraintBottom_toTopOf="@+id/editorLayout"
         app:layout_constraintEnd_toEndOf="parent"
         app:srcCompat="@drawable/ic_round_save_24"
-        app:tint="?attr/colorSurface" />
+        app:tint="@color/background" />
 
     <LinearLayout
         android:id="@+id/linearLayout"
@@ -162,7 +162,7 @@
                 <EditText
                     android:id="@+id/editContent"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
+                    android:layout_height="wrap_content"
                     android:layout_margin="10dp"
                     android:autoLink="web"
                     android:background="@android:color/transparent"
@@ -171,6 +171,7 @@
                     android:hint="@string/start_writing"
                     android:imeOptions="flagNoExtractUi"
                     android:inputType="textMultiLine"
+                    android:paddingBottom="100dp"
                     android:textSize="16sp" />
             </LinearLayout>
         </androidx.core.widget.NestedScrollView>
@@ -231,16 +232,6 @@
                 android:background="@android:color/transparent"
                 android:contentDescription="@string/strike_button_desc"
                 app:srcCompat="@drawable/ic_round_strikethrough_s_32"
-                app:tint="?attr/colorAccent" />
-
-            <ImageButton
-                android:id="@+id/headerButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_margin="10dp"
-                android:background="@android:color/transparent"
-                android:contentDescription="@string/header_button_desc"
-                app:srcCompat="@drawable/ic_round_text_fields_32"
                 app:tint="?attr/colorAccent" />
 
             <ImageButton

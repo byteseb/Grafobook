@@ -3,7 +3,7 @@
     <!-- main_activity.xml -->
     <string name="empty_place">Such an empty place…</string>
     <string name="try_creating_note">Try creating a note</string>
-    <string name="selecting">Selecting</string>
+    <string name="selection_amount">Selection (%s)</string>
     <string name="search">Search</string>
     <string name="empty_icon">Empty icon</string>
     <string name="sort_button_desc">Sort</string>
@@ -15,6 +15,7 @@
     <string name="favorites">Favorites</string>
     <string name="delete_notes">Delete notes</string>
     <string name="want_to_delete_notes">Do you want to delete the selected notes?</string>
+    <string name="failed_create">Failed to create file</string>
 
     <!-- note_activity.xml -->
     <string name="default_note_name">My note</string>
@@ -45,9 +46,27 @@
     <string name="choose_time_in_future">Please, choose a time in the future</string>
     <string name="note_saved">Note saved</string>
     <string name="name_required">A name for the note is required</string>
+    <string name="send_to">Send to…</string>
 
     <!-- TaggedSheet.kt -->
     <string name="notes_containing_tag">Notes containing tag: %s</string>
+
+    <!-- activity_import.xml -->
+    <string name="import_notes">Import note(s):</string>
+    <string name="import_desc">Load a .gfbk file and click the import button.</string>
+    <string name="browse">Browse</string>
+
+    <!-- ImportActivity.xml -->
+    <string name="error_reading_file">"Error reading file (Maybe it is corrupted, has wrong format or is not a .gfbk file). "</string>
+    <string name="import_amount">Import(%s)</string>
+
+
+    <!-- share_options.xml -->
+    <string name="share_as">Share note(s) as:</string>
+    <string name="html_file">.html file</string>
+    <string name="grafo_file">.gfbk file</string>
+    <string name="html_desc">Share your note as an HTML file. If there are several notes, the files will be compressed into a .zip file. You can\'t import these kind of files to Grafobook.</string>
+    <string name="grafo_desc">Saves all the notes in a single file that you can share to anyone. They will be able to import it directly to Grafobook.</string>
 
     <!-- color_menu.xml -->
     <string name="none">None</string>
@@ -82,10 +101,18 @@
     <!-- edit_tag.xml -->
     <string name="tag">Tag</string>
 
+    <!-- main_menu.xml -->
+    <string name="selection">Selection</string>
+    <string name="sorting">Sorting</string>
+    <string name="settings">Settings</string>
+    <string name="import_item">Import</string>
+
     <!-- select_menu.xml -->
-    <string name="select_all">Select all</string>
-    <string name="clear_selection">Clear selection</string>
-    <string name="delete_selection">Delete selection</string>
+    <string name="select_all">All</string>
+    <string name="clear_selection">Cancel</string>
+    <string name="duplicate_selection">Duplicate</string>
+    <string name="share_selection">Share</string>
+    <string name="delete_selection">Delete</string>
 
     <!-- sort_menu.xml -->
     <string name="recently_edited">Recently edited</string>
@@ -111,6 +138,13 @@
     <string name="github_desc">See the source code, report bugs or request features.</string>
     <string name="version">Version</string>
     <string name="dark_theme_disabled">You are using Android 10 or a higher version, this setting follows the system theme.</string>
+    <string name="preferences">Preferences</string>
+    <string name="auto_save">Auto save</string>
+    <string name="auto_save_desc">Saves notes automatically when any change is detected.</string>
+    <string name="backup">Backup</string>
+    <string name="generate_backup">Generate backup file</string>
+    <string name="generate_backup_desc">Save all your notes as a .gfbk file to your device.</string>
+    <string name="backup_file_name">backup.gfbk</string>
 
     <string name="new_note">New note</string>
     <string name="disabled_new_note">Shortcut disabled</string>

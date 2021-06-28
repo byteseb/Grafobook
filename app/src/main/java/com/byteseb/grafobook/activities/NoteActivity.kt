@@ -15,6 +15,8 @@ import android.text.util.Linkify
 import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
+import android.view.WindowManager
+import android.view.inputmethod.InputMethodManager
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
@@ -121,10 +123,6 @@ class NoteActivity : AppCompatActivity(), TagInterface {
     }
 
     override fun onBackPressed() {
-        handleBack()
-    }
-
-    private fun handleBack() {
         super.onBackPressed()
     }
 
@@ -167,8 +165,11 @@ class NoteActivity : AppCompatActivity(), TagInterface {
         initRecycler()
         loadData()
 
+        editContent.requestFocus()
+        window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE)
+
         backButton.setOnClickListener {
-            handleBack()
+            super.onBackPressed()
         }
 
         editFav.setOnCheckedChangeListener { buttonView, isChecked ->
@@ -182,9 +183,8 @@ class NoteActivity : AppCompatActivity(), TagInterface {
             }
 
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                edited = true
-                autoSave()
-
+                    edited = true
+                    autoSave()
             }
 
             override fun afterTextChanged(s: Editable?) {
@@ -197,8 +197,10 @@ class NoteActivity : AppCompatActivity(), TagInterface {
             }
 
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                edited = true
-                autoSave()
+                if(!s.isNullOrBlank()){
+                    edited = true
+                    autoSave()
+                }
             }
 
             override fun afterTextChanged(s: Editable?) {
@@ -863,46 +865,48 @@ class NoteActivity : AppCompatActivity(), TagInterface {
     }
 
     fun saveData(showToast: Boolean = true) {
-        editContent.clearComposingText()
-        if (note == null) {
-            //It is not an existing note, create a new one
-            note = Note(
-                name = getName(),
-                favorite = editFav.isChecked,
-                color = currentColor,
-                creationDate = System.currentTimeMillis(),
-                lastDate = System.currentTimeMillis(),
-                tags = tagsList,
-                reminder = currentReminder,
-                content = HtmlUtils.toHtml(editContent.text)
-            )
-            val context = this
-            runBlocking {
-                val id = NotesDB.getDB(context).noteDao().insert(note!!)
-                note?.id = id.toInt()
+        if(!editName.text.isNullOrBlank()){
+            editContent.clearComposingText()
+            if (note == null) {
+                //It is not an existing note, create a new one
+                note = Note(
+                    name = getName(),
+                    favorite = editFav.isChecked,
+                    color = currentColor,
+                    creationDate = System.currentTimeMillis(),
+                    lastDate = System.currentTimeMillis(),
+                    tags = tagsList,
+                    reminder = currentReminder,
+                    content = HtmlUtils.toHtml(editContent.text)
+                )
+                val context = this
+                runBlocking {
+                    val id = NotesDB.getDB(context).noteDao().insert(note!!)
+                    note?.id = id.toInt()
+                }
+                if (showToast) {
+                    Toast.makeText(this, getString(R.string.note_saved), Toast.LENGTH_SHORT).show()
+                }
+                refreshDate()
+            } else {
+                //It is an existing note, update it
+                note = Note(
+                    id = note!!.id,
+                    name = getName(),
+                    favorite = editFav.isChecked,
+                    color = currentColor,
+                    creationDate = note!!.creationDate,
+                    lastDate = System.currentTimeMillis(),
+                    tags = tagsList,
+                    reminder = currentReminder,
+                    content = HtmlUtils.toHtml(editContent.text)
+                )
+                viewModel.update(note!!)
+                if (showToast) {
+                    Toast.makeText(this, getString(R.string.note_saved), Toast.LENGTH_SHORT).show()
+                }
+                refreshDate()
             }
-            if (showToast) {
-                Toast.makeText(this, getString(R.string.note_saved), Toast.LENGTH_SHORT).show()
-            }
-            refreshDate()
-        } else {
-            //It is an existing note, update it
-            note = Note(
-                id = note!!.id,
-                name = getName(),
-                favorite = editFav.isChecked,
-                color = currentColor,
-                creationDate = note!!.creationDate,
-                lastDate = System.currentTimeMillis(),
-                tags = tagsList,
-                reminder = currentReminder,
-                content = HtmlUtils.toHtml(editContent.text)
-            )
-            viewModel.update(note!!)
-            if (showToast) {
-                Toast.makeText(this, getString(R.string.note_saved), Toast.LENGTH_SHORT).show()
-            }
-            refreshDate()
         }
     }
 

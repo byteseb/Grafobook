@@ -22,10 +22,10 @@ The app is fully translated to:
 * Spanish
 
 ## :hammer:Creation  process
-If you want to know about the creation process, [I have a video where I try to create the application in just 10 days! (The 1.0 version).](https://youtu.be/qusf77IZOcU).
+If you want to know about the creation process, [I have a video where I try to create the application in just 10 days! (The 1.0 version)](https://youtu.be/qusf77IZOcU).
 
 ## :arrow_down:Downloads
 |[Google Play Page](https://play.google.com/store/apps/details?id=com.byteseb.grafobook)|
 
 
-I really appreciate all feedback. If you want to suggest some feature, report a bug or just share your opinion, you can open a new issue. Thank you!
+I really appreciate all feedback. If you want to suggest some feature, report a bug or just share your opinion, you can [open a new issue](https://github.com/ByteSeb/Grafobook/issues/new). Thank you!

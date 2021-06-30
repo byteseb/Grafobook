@@ -22,7 +22,7 @@ The app is fully translated to:
 * Spanish
 
 ## :hammer:Creation  process
-If you want to know about the creation process, [I have a video where I try to create the application in just 10 days!](https://youtu.be/qusf77IZOcU) (The features that have the "1.1 feature" thing are not shown in the video, as that video is just for the 1.0 update. The 1.1 video will come out very soon).
+If you want to know about the creation process, [I have a video where I try to create the application in just 10 days! (The 1.0 version).](https://youtu.be/qusf77IZOcU).
 
 ## :arrow_down:Downloads
 |[Google Play Page](https://play.google.com/store/apps/details?id=com.byteseb.grafobook)|

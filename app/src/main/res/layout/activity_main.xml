@@ -5,6 +5,7 @@
     android:id="@+id/mainLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
     tools:context=".activities.MainActivity">
 
     <FrameLayout
@@ -27,18 +28,18 @@
                 android:id="@+id/nestedScroll"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:fillViewport="false">
+                android:fillViewport="true">
 
                 <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_height="match_parent"
                     android:orientation="vertical"
                     android:paddingBottom="50dp">
 
                     <androidx.recyclerview.widget.RecyclerView
                         android:id="@+id/recycler"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
+                        android:layout_height="match_parent"
                         android:paddingBottom="20dp" />
                 </LinearLayout>
             </androidx.core.widget.NestedScrollView>
@@ -130,7 +131,7 @@
                 android:layout_marginEnd="10dp"
                 android:layout_marginBottom="10dp"
                 android:layout_weight="1"
-                app:cardCornerRadius="15dp"
+                app:cardCornerRadius="@dimen/corner_radius"
                 app:cardElevation="5dp">
 
                 <LinearLayout
@@ -179,11 +180,7 @@
                         app:srcCompat="@drawable/ic_round_add_24"
                         app:tint="@color/background" />
                 </LinearLayout>
-
             </com.google.android.material.card.MaterialCardView>
-
         </LinearLayout>
-
     </LinearLayout>
-
 </androidx.constraintlayout.widget.ConstraintLayout>

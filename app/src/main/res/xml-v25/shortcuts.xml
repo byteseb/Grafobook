@@ -14,4 +14,17 @@
             android:targetClass="com.byteseb.grafobook.activities.NoteActivity"/>
     </shortcut>
 
+    <shortcut
+        android:shortcutId="import_note"
+        android:enabled="true"
+        android:icon="@drawable/ic_round_download_24"
+        android:shortcutShortLabel="@string/import_note"
+        android:shortcutLongLabel="@string/import_note"
+        android:shortcutDisabledMessage="@string/disabled_new_note">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetPackage="com.byteseb.grafobook"
+            android:targetClass="com.byteseb.grafobook.activities.ImportActivity"/>
+    </shortcut>
+
 </shortcuts>

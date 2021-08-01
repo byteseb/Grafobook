@@ -19,6 +19,8 @@ import com.byteseb.grafobook.R
 import com.byteseb.grafobook.interfaces.TagInterface
 import com.byteseb.grafobook.listeners.setOnSingleClickListener
 import com.byteseb.grafobook.sheets.TaggedSheet
+import com.byteseb.grafobook.utils.ColorUtils.Companion.darkenColor
+import com.byteseb.grafobook.utils.ColorUtils.Companion.isDarkColor
 import com.google.android.material.chip.Chip
 import kotlin.math.roundToInt
 
@@ -26,9 +28,16 @@ class TagsAdapter(
     val fragmentManager: FragmentManager,
     val canClose: Boolean = false,
     val tagInterface: TagInterface? = null,
-    val color: Int? = null
+    var color: Int? = null,
+    val context: Context
 
 ) : ListAdapter<String, TagsAdapter.TagHolder>(TagDiffUtilCallback()) {
+
+    fun forceRefresh() {
+        for (note in currentList) {
+            notifyItemChanged(currentList.indexOf(note))
+        }
+    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TagHolder =
         TagHolder(LayoutInflater.from(parent.context).inflate(R.layout.chip_layout, parent, false))
@@ -45,17 +54,7 @@ class TagsAdapter(
             chip.isCloseIconVisible = canClose
             chip.isCheckable = false
 
-            if (color != null) {
-                val color = darkenColor(color, 0.6f)
-                chip.chipBackgroundColor = ColorStateList.valueOf(color)
-                if(isDarkColor(color)){
-                    chip.setTextColor(Color.WHITE)
-                }
-                else{
-                    chip.setTextColor(Color.BLACK)
-                }
-            }
-
+            refreshColor()
             chip.setOnSingleClickListener {
                 val sheet = TaggedSheet()
                 val bundle = Bundle()
@@ -69,21 +68,21 @@ class TagsAdapter(
             }
         }
 
-        fun darkenColor(color: Int, factor: Float): Int {
-            val a = Color.alpha(color)
-            val r = (Color.red(color) * factor).roundToInt()
-            val g = (Color.green(color) * factor).roundToInt()
-            val b = (Color.blue(color) * factor).roundToInt()
-            return Color.argb(
-                a,
-                r.coerceAtMost(255),
-                g.coerceAtMost(255),
-                b.coerceAtMost(255)
-            )
-        }
+        fun refreshColor() {
 
-        fun isDarkColor(color: Int): Boolean {
-            return ColorUtils.calculateLuminance(color) < 0.25f
+            val backColor: Int
+            if(color != null){
+                backColor =
+             darkenColor(color!!, 0.6f)}
+            else{
+                backColor = context.getColor(R.color.chipBack)
+            }
+            chip.chipBackgroundColor = ColorStateList.valueOf(backColor)
+            if (isDarkColor(backColor)) {
+                chip.setTextColor(Color.WHITE)
+            } else {
+                chip.setTextColor(Color.BLACK)
+            }
         }
     }
 }

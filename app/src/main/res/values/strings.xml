@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
 
     <!-- main_activity.xml -->
     <string name="empty_place">Such an empty place…</string>
@@ -11,11 +11,14 @@
     <string name="options_button_desc">Options</string>
 
     <!-- MainActivity.kt -->
-    <string name="reminder_channel">Reminders</string>
     <string name="favorites">Favorites</string>
     <string name="delete_notes">Delete notes</string>
     <string name="want_to_delete_notes">Do you want to delete the selected notes?</string>
     <string name="failed_create">Failed to create file</string>
+
+    <!-- NotesAdapter.kt -->
+    <string name="yesterday">Yesterday</string>
+    <string name="tomorrow">Tomorrow</string>
 
     <!-- note_activity.xml -->
     <string name="default_note_name">My note</string>
@@ -37,9 +40,12 @@
     <string name="remind_button_desc">Add/Remove Reminder</string>
 
     <!-- NoteActivity.kt -->
-    <string name="year_month_date_hour_minute">yyyy-MMM-dd HH:mm</string>
+    <string name="year_month_date_hour_minute" translatable="false">yyyy/MMM/dd HH:mm</string>
+    <string name="month_date_hour_minute" translatable="false">MMM dd HH:mm</string>
     <string name="remove_reminder">Remove reminder?</string>
+    <string name="remove_password">Unlock note (Remove password)?</string>
     <string name="would_like_remove">You have a reminder scheduled for %s, would you like to remove it? </string>
+    <string name="would_like_remove_pass">The note is locked with a password, would you like to remove it?</string>
     <string name="add_tag">Add tag</string>
     <string name="cant_add_existing_tag">Can\'t add an already existing tag</string>
     <string name="cant_add_empty_tag">Can\'t add an empty tag</string>
@@ -47,6 +53,17 @@
     <string name="note_saved">Note saved</string>
     <string name="name_required">A name for the note is required</string>
     <string name="send_to">Send to…</string>
+
+    <!-- note_widget.xml -->
+    <string name="note_widget">Note</string>
+    <string name="note_widget_error">Error loading note (Maybe it was deleted?)</string>
+
+    <!-- upcoming_widget.xml -->
+    <string name="upcoming_widget">Upcoming reminders</string>
+
+    <!--  AlarmReceiver.kt  -->
+    <string name="remove_reminder_action">Remove reminder</string>
+    <string name="reached_reminder_limit">You reached the 500 reminders limit. Some could not work properly</string>
 
     <!-- TaggedSheet.kt -->
     <string name="notes_containing_tag">Notes containing tag: %s</string>
@@ -60,9 +77,14 @@
     <string name="error_reading_file">"Error reading file (Maybe it is corrupted, has wrong format or is not a .gfbk file). "</string>
     <string name="import_amount">Import(%s)</string>
 
+    <!-- NotePicker.xml -->
+    <string name="pick_notes">Pick note(s):</string>
+    <string name="pick">Pick</string>
 
     <!-- share_options.xml -->
     <string name="share_as">Share note(s) as:</string>
+    <string name="txt_file">Plain text</string>
+    <string name="txt_desc">Share the note\'s content as a plain text without any formatting.</string>
     <string name="html_file">.html file</string>
     <string name="grafo_file">.gfbk file</string>
     <string name="html_desc">Share your note as an HTML file. If there are several notes, the files will be compressed into a .zip file. You can\'t import these kind of files to Grafobook.</string>
@@ -113,6 +135,7 @@
     <string name="duplicate_selection">Duplicate</string>
     <string name="share_selection">Share</string>
     <string name="delete_selection">Delete</string>
+    <string name="select_all_item">Select all</string>
 
     <!-- sort_menu.xml -->
     <string name="recently_edited">Recently edited</string>
@@ -122,7 +145,11 @@
 
     <string name="app_name">Grafobook</string>
     <string name="action_settings">Settings</string>
-    <!-- Strings used for fragments for navigation -->
+
+    <!-- edit_password.xml -->
+    <string name="add_pass">Add password</string>
+    <string name="add_pass_desc">If you forget your password, there is no way to recover it!</string>
+    <string name="password">Password</string>
 
     <!-- preferences.xml -->
     <string name="theming">Theming</string>
@@ -139,18 +166,38 @@
     <string name="version">Version</string>
     <string name="dark_theme_disabled">You are using Android 10 or a higher version, this setting follows the system theme.</string>
     <string name="preferences">Preferences</string>
+    <string name="editor">Editor</string>
     <string name="auto_save">Auto save</string>
     <string name="auto_save_desc">Saves notes automatically when any change is detected.</string>
     <string name="backup">Backup</string>
-    <string name="generate_backup">Generate backup file</string>
-    <string name="generate_backup_desc">Save all your notes as a .gfbk file to your device.</string>
+    <string name="auto_cloud_backup">Auto cloud backup</string>
+    <string name="auto_cloud_backup_settings">Manage auto cloud backups</string>
+    <string name="auto_cloud_backup_settings_desc">Your data is backed up to Google Drive every 24 hours, so that you can restore it when you reinstall the app. </string>
+    <string name="last_cloud_backup">Last cloud backup: %s</string>
+    <string name="last_local_backup">Last local backup: %s</string>
+    <string name="local_backup">Local backup</string>
+    <string name="generate_backup">Generate local backup file</string>
+    <string name="generate_backup_desc">Save all your notes as a local .gfbk file to your device.</string>
     <string name="backup_file_name">backup.gfbk</string>
+    <string name="privacy">Privacy</string>
+    <string name="show_lock_preview">Show locked notes preview</string>
+    <string name="show_lock_preview_desc">Shows a preview of the content of your notes locked with a password.</string>
+    <string name="show_back">Show back button</string>
+    <string name="show_back_desc">Shows back button at the top of the editor.</string>
 
     <string name="new_note">New note</string>
-    <string name="disabled_new_note">Shortcut disabled</string>
-    <!-- Preference Titles -->
+    <string name="import_note">Import note</string>
+    <string name="disabled_new_note">Disabled shortcut</string>
 
-    <!-- Messages Preferences -->
+    <!-- NotificationUtils.kt -->
+    <string name="reminder_channel">Reminders</string>
+    <string name="backup_channel">Backup</string>
+    <string name="other_channel">Other</string>
 
-    <!-- Sync Preferences -->
+    <!-- CustomAgent.kt -->
+    <string name="not_backup_title">Backup performed</string>
+    <string name="not_restore_title">Backup restored</string>
+    <string name="not_exceeded_title">Backup failed</string>
+    <string name="not_exceeded_desc">Could not perform a backup, as the size exceeds the 25MB limit.</string>
+
 </resources>

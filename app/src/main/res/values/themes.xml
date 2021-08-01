@@ -12,7 +12,8 @@
         <item name="colorOnSecondary">@color/white</item>
         <item name="colorAccent">@color/orange</item>
         <!-- Status bar color. -->
-        <item name="android:statusBarColor" tools:targetApi="l">?attr/colorPrimaryVariant</item>
+        <item name="android:statusBarColor" tools:targetApi="l">@color/background</item>
+        <item name="android:windowLightStatusBar">true</item>
         <item name="android:fontFamily">@font/poppins_medium</item>
         <item name="shapeAppearanceLargeComponent">@style/shapeAppearance</item>
         <item name="popupMenuStyle">@style/popupStyle</item>
@@ -106,12 +107,12 @@
         <item name="android:statusBarColor" tools:targetApi="l">?attr/colorPrimaryVariant</item>
         <item name="android:fontFamily">@font/poppins_medium</item>
     </style>
-    
+
     <style name="shapeAppearance" parent="ShapeAppearance.MaterialComponents.LargeComponent">
         <item name="cornerFamily">rounded</item>
         <item name="cornerSize">15dp</item>
     </style>
-    
+
     <style name="popupStyle" parent="Widget.AppCompat.PopupMenu">
         <item name="background">@drawable/popup_back</item>
     </style>
@@ -123,6 +124,11 @@
 
     <style name="cardStyle" parent="CardView">
         <item name="cardBackgroundColor">@color/cardBackground</item>
+    </style>
+
+    <style name="ThemeOverlay.Grafobook.AppWidgetContainer" parent="">
+        <item name="appWidgetBackgroundColor">@color/light_blue_600</item>
+        <item name="appWidgetTextColor">@color/light_blue_50</item>
     </style>
 
 </resources>

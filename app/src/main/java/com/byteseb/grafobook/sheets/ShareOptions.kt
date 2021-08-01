@@ -15,7 +15,7 @@ import java.lang.ClassCastException
 class ShareOptions: BottomSheetDialogFragment() {
 
     enum class Options{
-        GRAFO_FILE, HTML_FILE
+        GRAFO_FILE, HTML_FILE, PLAIN_TEXT
     }
 
     interface ShareOptionsInterface{
@@ -53,6 +53,10 @@ class ShareOptions: BottomSheetDialogFragment() {
         }
         grafoCard.setOnSingleClickListener {
             callback?.onOptionSelected(Options.GRAFO_FILE.ordinal)
+            dismiss()
+        }
+        textCard.setOnSingleClickListener {
+            callback?.onOptionSelected(Options.PLAIN_TEXT.ordinal)
             dismiss()
         }
     }

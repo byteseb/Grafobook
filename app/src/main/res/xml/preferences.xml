@@ -5,32 +5,58 @@
         <ListPreference
             android:dialogTitle="@string/colors_dialog_title"
             android:entries="@array/theming_colors"
+            android:icon="@drawable/ic_round_color_lens_24_neutral"
             android:entryValues="@array/theming_colors_values"
             android:key="accentColor"
             android:summary="@string/accent_color_desc"
             android:title="@string/accent_color" />
 
         <SwitchPreference
+            android:icon="@drawable/ic_round_bedtime_24_neutral"
             android:defaultValue="false"
             android:key="backgroundColor"
             android:title="@string/dark_theme" />
+
     </androidx.preference.PreferenceCategory>
 
-    <PreferenceCategory android:title="@string/backup">
-        <Preference
-            android:key="getBackup"
-            android:title="@string/generate_backup"
-            android:summary="@string/generate_backup_desc"
-            />
-    </PreferenceCategory>
-
-    <PreferenceCategory app:title="@string/preferences">
+    <PreferenceCategory app:title="@string/editor">
         <SwitchPreference
             android:defaultValue="true"
+            android:icon="@drawable/ic_round_save_24_neutral"
             android:key="autoSave"
             android:title="@string/auto_save"
             android:summary="@string/auto_save_desc"
             />
+
+        <SwitchPreference
+            android:icon="@drawable/ic_round_arrow_back_24_neutral"
+            android:defaultValue="true"
+            android:key="showBack"
+            android:title="@string/show_back"
+            android:summary="@string/show_back_desc"
+            />
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="@string/privacy">
+        <SwitchPreference
+            android:key="showLockPrev"
+            android:icon="@drawable/ic_round_preview_24_neutral"
+            android:title="@string/show_lock_preview"
+            android:summary="@string/show_lock_preview_desc"
+            />
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="@string/backup">
+        <Preference
+            android:icon="@drawable/ic_round_settings_backup_restore_24_neutral"
+            android:key="manageAutoCloudBackups"
+            android:summary="@string/auto_cloud_backup_settings_desc"
+            android:title="@string/auto_cloud_backup_settings" />
+        <Preference
+            android:icon="@drawable/ic_round_arrow_circle_down_24_neutral"
+            android:key="getBackup"
+            android:summary="@string/generate_backup_desc"
+            android:title="@string/generate_backup" />
     </PreferenceCategory>
 
     <androidx.preference.PreferenceCategory android:title="@string/about_title">
@@ -38,6 +64,7 @@
             android:key="about"
             android:summary="@string/about_desc" />
         <Preference
+            android:icon="@drawable/ic_round_subscriptions_24_neutral"
             android:key="youtube"
             android:summary="@string/youtube_desc"
             android:title="@string/youtube_channel_title">
@@ -46,6 +73,7 @@
                 android:data="https://www.youtube.com/channel/UCcf2Mr1qNoX51XXDUd3Rquw" />
         </Preference>
         <Preference
+            android:icon="@drawable/ic_round_code_24_neutral"
             android:key="github"
             android:summary="@string/github_desc"
             android:title="@string/github_repo_title">
@@ -54,6 +82,7 @@
                 android:data="https://github.com/ByteSeb/Grafobook" />
         </Preference>
         <Preference
+            android:icon="@drawable/ic_round_info_24_neutral"
             android:key="version"
             android:title="@string/version" />
     </androidx.preference.PreferenceCategory>

@@ -12,12 +12,13 @@
         <item name="colorOnSecondary">@color/white</item>
         <item name="colorAccent">@color/orange</item>
         <!-- Status bar color. -->
-        <item name="android:statusBarColor" tools:targetApi="l">@color/background</item>
+        <item name="android:statusBarColor">@color/background</item>
         <item name="android:windowLightStatusBar">true</item>
-        <item name="android:navigationBarColor" tools:targetApi="27">@color/background</item>
+        <item name="android:navigationBarColor">@color/background</item>
         <item name="android:windowLightNavigationBar" tools:targetApi="27">true</item>
         <item name="android:fontFamily">@font/poppins_medium</item>
         <item name="shapeAppearanceLargeComponent">@style/shapeAppearance</item>
+        <item name="listPopupWindowStyle">@style/popupStyle</item>
         <item name="popupMenuStyle">@style/popupStyle</item>
     </style>
 
@@ -102,16 +103,7 @@
         <item name="cornerSize">15dp</item>
     </style>
 
-    <style name="chipFont">
-        <item name="android:fontFamily">@font/poppins_medium</item>
-        <item name="android:textSize">14sp</item>
-    </style>
-
-    <style name="cardStyle" parent="CardView">
-        <item name="cardBackgroundColor">@color/cardBackground</item>
-    </style>
-
     <style name="popupStyle" parent="Widget.AppCompat.PopupMenu">
-        <item name="background">@drawable/popup_back</item>
+        <item name="android:popupBackground">@drawable/popup_back</item>
     </style>
 </resources>

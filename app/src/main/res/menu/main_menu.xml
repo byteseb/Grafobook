@@ -16,24 +16,26 @@
                 android:id="@+id/sortReverse"
                 android:checkable="true"
                 android:title="@string/reverse_order" />
-            <item
-                android:id="@+id/sortAlpha"
-                android:checkable="true"
-                android:title="@string/alphabetically" />
-            <item
-                android:id="@+id/sortCreation"
-                android:checkable="true"
-                android:title="@string/creation_date" />
-            <item
-                android:id="@+id/sortRecent"
-                android:checkable="true"
-                android:title="@string/recently_edited" />
+
+            <group android:id="@+id/sortGroup" android:checkableBehavior="single">
+
+                <item
+                    android:id="@+id/sortAlpha"
+                    android:title="@string/alphabetically" />
+                <item
+                    android:id="@+id/sortCreation"
+                    android:title="@string/creation_date" />
+                <item
+                    android:id="@+id/sortRecent"
+                    android:title="@string/recently_edited" />
+            </group>
         </menu>
     </item>
 
     <item
         android:id="@+id/selectItem"
-        android:title="@string/selection">
+        android:title="@string/selection"
+        android:visible="true">
         <menu>
             <item
                 android:id="@+id/selectDelete"

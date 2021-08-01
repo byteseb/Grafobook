@@ -1,11 +1,13 @@
 package com.byteseb.grafobook.models
 
+import android.os.Parcelable
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import androidx.room.TypeConverter
 import androidx.room.TypeConverters
 import com.byteseb.grafobook.room.Converters
+import kotlinx.android.parcel.Parcelize
 
+@Parcelize
 @Entity
 data class Note(
     @PrimaryKey(autoGenerate = true)
@@ -17,6 +19,7 @@ data class Note(
     val lastDate: Long,
     @TypeConverters(Converters::class)
     var tags: List<String>,
-    val reminder: Long,
-    val content: String
-)
+    var reminder: Long,
+    val content: String,
+    val password: String?
+) : Parcelable

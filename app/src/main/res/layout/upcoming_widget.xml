@@ -1,0 +1,51 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <ImageView
+        android:id="@+id/uwBack"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:src="@drawable/widget_background" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_margin="10dp"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/uwTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:alpha="0.9"
+            android:text="Upcoming"
+            android:textSize="20sp"
+            android:textStyle="bold" />
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginTop="5dp">
+
+            <TextView
+                android:id="@+id/uwError"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_margin="10dp"
+                android:alpha="0.9"
+                android:gravity="center"
+                android:text="No notes with reminders."
+                android:textAlignment="center"
+                android:textStyle="bold" />
+
+            <LinearLayout
+                android:id="@+id/uwNotes"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical" />
+        </FrameLayout>
+
+    </LinearLayout>
+</FrameLayout>

@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.byteseb.grafobook.R
 import com.byteseb.grafobook.adapters.NotesAdapter
 import com.byteseb.grafobook.models.Filter
@@ -41,10 +42,14 @@ class TaggedSheet : BottomSheetDialogFragment() {
                     }
                 }
             }
-            val adapter = NotesAdapter(requireContext(), interactable = false, fragmentManager = null)
+            val adapter = NotesAdapter(requireContext(), clickable = true, fragmentManager = null)
+            adapter.maxSelectionSize = -1
             adapter.submitList(notesList)
             taggedRecycler.layoutManager =
-                GridLayoutManager(requireContext(), resources.getInteger(R.integer.column_count))
+                StaggeredGridLayoutManager(
+                    resources.getInteger(R.integer.column_count),
+                    StaggeredGridLayoutManager.VERTICAL
+                )
             taggedRecycler.adapter = adapter
             adapter.notifyDataSetChanged()
         }

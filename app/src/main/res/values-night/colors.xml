@@ -5,13 +5,15 @@
     <color name="blue">#42A5F5</color>
     <color name="red">#EF5350</color>
     <color name="pink">#EC407A</color>
-    <color name="purple">#AB47BC</color>
+    <color name="purple">#AD55BD</color>
     <color name="yellow">#FFB74D</color>
     <color name="orange">#FB8C00</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="neutral">#808080</color>
     <color name="transparent">#00000000</color>
     <color name="selectionColor">#FFFFFF</color>
+    <color name="chipBack">#444444</color>
 
     <color name="semi_green">#6666BA6B</color>
     <color name="semi_blue">#6642A4F5</color>

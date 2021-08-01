@@ -1,50 +1,49 @@
 package com.byteseb.grafobook.activities
 
+import android.animation.Animator
+import android.animation.AnimatorListenerAdapter
 import android.app.*
-import android.content.Context
-import android.content.Intent
+import android.app.backup.BackupManager
 import android.content.res.ColorStateList
 import android.graphics.*
-import android.os.Build
 import android.os.Bundle
-import android.os.PersistableBundle
 import android.text.*
-import android.text.method.LinkMovementMethod
+import android.text.format.DateUtils
 import android.text.style.*
-import android.text.util.Linkify
 import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.WindowManager
-import android.view.inputmethod.InputMethodManager
 import android.widget.*
-import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.app.AppCompatDelegate
+import android.widget.ScrollView
 import androidx.core.content.ContextCompat
 import androidx.core.view.children
 import androidx.lifecycle.ViewModelProvider
 import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.byteseb.grafobook.AlarmReceiver
 import com.byteseb.grafobook.R
 import com.byteseb.grafobook.adapters.TagsAdapter
 import com.byteseb.grafobook.interfaces.TagInterface
 import com.byteseb.grafobook.listeners.setOnSingleClickListener
-import com.byteseb.grafobook.models.Filter
 import com.byteseb.grafobook.models.Note
 import com.byteseb.grafobook.room.NoteViewModel
 import com.byteseb.grafobook.room.NotesDB
-import com.byteseb.grafobook.utils.HtmlUtils
+import com.byteseb.grafobook.utils.*
+import com.byteseb.grafobook.utils.ColorUtils.Companion.isDarkColor
+import com.byteseb.grafobook.utils.ColorUtils.Companion.tintBox
+import com.byteseb.grafobook.utils.ColorUtils.Companion.tintImg
+import com.byteseb.grafobook.utils.ColorUtils.Companion.tintImgButton
+import com.byteseb.grafobook.utils.ColorUtils.Companion.tintText
+import com.google.android.material.textfield.TextInputEditText
 import kotlinx.android.synthetic.main.activity_note.*
 import kotlinx.android.synthetic.main.activity_note.editFav
-import kotlinx.android.synthetic.main.note_card.*
 import kotlinx.coroutines.runBlocking
-import java.lang.IndexOutOfBoundsException
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.ArrayList
 
-class NoteActivity : AppCompatActivity(), TagInterface {
+
+class NoteActivity : BaseActivity(), TagInterface {
 
     private lateinit var viewModel: NoteViewModel
 
@@ -53,6 +52,7 @@ class NoteActivity : AppCompatActivity(), TagInterface {
     var currentReminder: Long = -1
     var currentColor: String? = null
     var tagsList = ArrayList<String>()
+    var currentPass: String? = null
 
     val allTags = ArrayList<String>()
     var edited: Boolean = false
@@ -62,6 +62,7 @@ class NoteActivity : AppCompatActivity(), TagInterface {
         outState.putLong("currentReminder", currentReminder)
         outState.putString("currentColor", currentColor)
         outState.putStringArrayList("tagsList", tagsList)
+        outState.putString("password", currentPass)
     }
 
     override fun onRestoreInstanceState(savedInstanceState: Bundle) {
@@ -69,86 +70,34 @@ class NoteActivity : AppCompatActivity(), TagInterface {
         currentReminder = savedInstanceState.getLong("currentReminder")
         currentColor = savedInstanceState.getString("currentColor")
         tagsList = savedInstanceState.getStringArrayList("tagsList")!!
+        currentPass = savedInstanceState.getString("password")
 
         refreshDate()
         refreshReminder()
         refreshColors()
-        adapter.submitList(ArrayList(tagsList))
-    }
-
-    enum class Colors {
-        RED, PINK, PURPLE, BLUE, GREEN, YELLOW, ORANGE
+        refreshLock()
+        refreshTags()
     }
 
     private var hasAutoSave: Boolean = true
+    private var showBack: Boolean = true
 
-    fun setCurrentTheme() {
-        val defColor = PreferenceManager.getDefaultSharedPreferences(this)
-            ?.getInt("defaultColor", MainActivity.Colors.ORANGE.ordinal)!!
-        val defBack = PreferenceManager.getDefaultSharedPreferences(this)
-            ?.getBoolean("nightTheme", false)!!
-
-        when (defColor) {
-            Colors.RED.ordinal -> {
-                setTheme(R.style.Theme_Grafobook_Red)
-            }
-            Colors.BLUE.ordinal -> {
-                setTheme(R.style.Theme_Grafobook_Blue)
-            }
-            MainActivity.Colors.GREEN.ordinal -> {
-                setTheme(R.style.Theme_Grafobook_Green)
-            }
-            Colors.ORANGE.ordinal -> {
-                setTheme(R.style.Theme_Grafobook)
-            }
-            Colors.YELLOW.ordinal -> {
-                setTheme(R.style.Theme_Grafobook_Yellow)
-            }
-            Colors.PINK.ordinal -> {
-                setTheme(R.style.Theme_Grafobook_Pink)
-            }
-            Colors.PURPLE.ordinal -> {
-                setTheme(R.style.Theme_Grafobook_Purple)
-            }
-        }
-
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
-            //If it is a version lower than Q, set the theme manually
-            if (!defBack) {
-                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
-            } else {
-                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
-            }
-        }
-    }
-
-    override fun onBackPressed() {
-        super.onBackPressed()
-    }
-
-    var statusDefaultColor: Int = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setCurrentTheme()
         setContentView(R.layout.activity_note)
-        statusDefaultColor = window.statusBarColor
-        hasAutoSave = PreferenceManager.getDefaultSharedPreferences(this)
-            ?.getBoolean("autoSave", true)!!
-        viewModel = ViewModelProvider(this).get(NoteViewModel::class.java)
+        hasAutoSave = PrefUtils.getPref("autoSave", true, this) as Boolean
 
-        createNotChannel()
-
-        viewModel.allNotes.observe(this) {
-            clearAlarms()
-            remindersList.clear()
-
-            for (note in it) {
-                if (note.reminder != -1L) {
-                    remindersList.add(setAlarm(note))
-                }
-            }
+        showBack =
+            PrefUtils.getPref("showBack", true, this) as Boolean
+        if (showBack) {
+            backButton.visibility = View.VISIBLE
+        } else {
+            backButton.visibility = View.GONE
         }
+
+        viewModel = ViewModelProvider(this).get(NoteViewModel::class.java)
 
         viewModel.allNotes.observe(this) {
             allTags.clear()
@@ -160,13 +109,60 @@ class NoteActivity : AppCompatActivity(), TagInterface {
                     }
                 }
             }
+            ReminderUtils.refreshReminders(this@NoteActivity)
+        }
+
+        loadData()
+        if (currentPass != null) {
+            lockBackground.visibility = View.VISIBLE
+            notePass.addTextChangedListener(object : TextWatcher {
+                override fun beforeTextChanged(
+                    s: CharSequence?,
+                    start: Int,
+                    count: Int,
+                    after: Int
+                ) {
+                }
+
+                override fun onTextChanged(
+                    s: CharSequence?,
+                    start: Int,
+                    before: Int,
+                    count: Int
+                ) {
+                    if (s.toString() == currentPass) {
+                        lockBackground.animate().alpha(0f).setDuration(200)
+                            .setListener(object : AnimatorListenerAdapter() {
+                                override fun onAnimationEnd(animation: Animator?) {
+                                    super.onAnimationEnd(animation)
+                                    lockBackground.clearAnimation()
+                                    lockBackground.visibility = View.GONE
+                                }
+                            })
+                        editContent.requestFocus()
+                        noteScroll.post { noteScroll.fullScroll(ScrollView.FOCUS_DOWN) }
+                    }
+                }
+
+                override fun afterTextChanged(s: Editable?) {
+                }
+
+            })
+        } else {
+            lockBackground.visibility = View.GONE
         }
 
         initRecycler()
-        loadData()
+        if (currentPass == null) {
+            window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE)
+            editContent.requestFocus()
+        } else {
+            window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE)
+            notePass.requestFocus()
+        }
 
-        editContent.requestFocus()
-        window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE)
+        //Bottom sheet
+//        val sheetBehavior = BottomSheetBehavior.from(contentSheet)
 
         backButton.setOnClickListener {
             super.onBackPressed()
@@ -178,26 +174,41 @@ class NoteActivity : AppCompatActivity(), TagInterface {
             }
         }
 
+        editName.setOnFocusChangeListener { v, hasFocus ->
+            if (hasFocus) {
+                editorLayout.animate()
+                    .translationY(editorLayout.height.toFloat())
+                    .alpha(0f)
+                    .setListener(object : AnimatorListenerAdapter() {
+                        override fun onAnimationEnd(animation: Animator?) {
+                            super.onAnimationEnd(animation)
+                            editorLayout.clearAnimation()
+                            editorLayout.visibility = View.GONE
+                        }
+                    })
+                    .duration = 150
+            }
+        }
+
         editName.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
             }
 
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                    edited = true
-                    autoSave()
+                edited = true
+                autoSave()
             }
 
             override fun afterTextChanged(s: Editable?) {
             }
 
         })
-
         editContent.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
             }
 
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                if(!s.isNullOrBlank()){
+                if (!s.isNullOrBlank()) {
                     edited = true
                     autoSave()
                 }
@@ -207,6 +218,20 @@ class NoteActivity : AppCompatActivity(), TagInterface {
             }
         })
 
+        editContent.setOnFocusChangeListener { v, hasFocus ->
+            if (hasFocus && editorLayout.visibility == View.GONE) {
+                editorLayout.visibility = View.VISIBLE
+                editorLayout.animate()
+                    .translationY(0f)
+                    .alpha(1f)
+                    .setListener(object : AnimatorListenerAdapter() {
+                        override fun onAnimationEnd(animation: Animator?) {
+                            super.onAnimationEnd(animation)
+                        }
+                    })
+                    .duration = 150
+            }
+        }
         if (!hasAutoSave) {
             saveFAB.visibility = View.VISIBLE
             var oldScroll = 0
@@ -360,7 +385,6 @@ class NoteActivity : AppCompatActivity(), TagInterface {
             }
             colorMenu.show()
         }
-
         colorButton.setOnClickListener {
             val colorMenu = PopupMenu(this, colorButton)
             colorMenu.menuInflater.inflate(R.menu.color_menu, colorMenu.menu)
@@ -409,36 +433,22 @@ class NoteActivity : AppCompatActivity(), TagInterface {
         remindButton.setOnSingleClickListener {
             if (currentReminder == -1L) {
                 //It does not have a reminder, add one
-                val calendar = GregorianCalendar.getInstance()
-
+                val calendar = GregorianCalendar()
                 val dateListener = DatePickerDialog.OnDateSetListener { picker, year, month, day ->
                     calendar.set(Calendar.YEAR, year)
                     calendar.set(Calendar.MONTH, month)
                     calendar.set(Calendar.DAY_OF_MONTH, day)
-                    if (day < GregorianCalendar.getInstance().get(Calendar.DAY_OF_MONTH)) {
-                        //If user tries to troll the app and picks a date older than today
-                        failDateTimePicker()
-                    } else {
+                    if (TimeUtils.isFutureDate(calendar.timeInMillis) || DateUtils.isToday(calendar.timeInMillis)) {
                         val timeListener =
                             TimePickerDialog.OnTimeSetListener { timePicker, hour, minute ->
-                                if (hour >= GregorianCalendar.getInstance()
-                                        .get(Calendar.HOUR_OF_DAY)
-                                ) {
-                                    //Hour is either current or future hour
-                                    if (minute >= GregorianCalendar.getInstance()
-                                            .get(Calendar.MINUTE)
-                                    ) {
-                                        calendar.set(Calendar.HOUR_OF_DAY, hour)
-                                        calendar.set(Calendar.MINUTE, minute)
-                                        calendar.set(Calendar.SECOND, 0)
-                                        currentReminder = calendar.timeInMillis
-                                        refreshReminder()
-                                        autoSave()
-                                    } else {
-                                        failDateTimePicker()
-                                    }
+                                calendar.set(Calendar.HOUR_OF_DAY, hour)
+                                calendar.set(Calendar.MINUTE, minute)
+                                calendar.set(Calendar.SECOND, 0)
+                                if (TimeUtils.isFutureDate(calendar.timeInMillis)) {
+                                    currentReminder = calendar.timeInMillis
+                                    refreshReminder()
+                                    autoSave()
                                 } else {
-                                    //If user tries to troll the app and picks a date older than today
                                     failDateTimePicker()
                                 }
                             }
@@ -449,6 +459,9 @@ class NoteActivity : AppCompatActivity(), TagInterface {
                             calendar.get(Calendar.MINUTE),
                             true
                         ).show()
+                    } else {
+                        //If user tries to troll the app and picks a date older than today
+                        failDateTimePicker()
                     }
                 }
                 DatePickerDialog(
@@ -499,7 +512,7 @@ class NoteActivity : AppCompatActivity(), TagInterface {
                 if (editTag.text.isNotEmpty()) {
                     if (!tagsList.contains(editTag.text.toString())) {
                         tagsList.add(editTag.text.toString())
-                        this.adapter.submitList(ArrayList(tagsList))
+                        this.adapter.notifyDataSetChanged()
                         autoSave()
                     } else {
                         Toast.makeText(
@@ -518,8 +531,52 @@ class NoteActivity : AppCompatActivity(), TagInterface {
                 dialog.cancel()
             }
             builder.show()
+            window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE)
             editTag.requestFocus()
         }
+
+        lockButton.setOnSingleClickListener {
+            if (currentPass == null) {
+                //Does not have a password, set one
+                val builder = AlertDialog.Builder(this)
+                builder.setTitle(getString(R.string.add_pass))
+                builder.setMessage(getString(R.string.add_pass_desc))
+                val view = LayoutInflater.from(this).inflate(R.layout.edit_password, null)
+                val editPass = view.findViewById<TextInputEditText>(R.id.editPass)
+                builder.setView(view)
+                builder.setPositiveButton(android.R.string.ok) { dialog, which ->
+                    if (editPass.text!!.isNotEmpty()) {
+                        currentPass = editPass.text.toString()
+                        edited = true
+                        autoSave()
+                        dialog.dismiss()
+                        refreshLock()
+                    }
+                }
+                builder.setNegativeButton(android.R.string.cancel) { dialog, which ->
+                    dialog.cancel()
+                }
+                builder.show()
+                window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE)
+                editPass.requestFocus()
+            } else {
+                //Has a password, ask for removal
+                val builder = AlertDialog.Builder(this)
+                builder.setTitle(getString(R.string.remove_password))
+                builder.setMessage(getString(R.string.would_like_remove_pass))
+                builder.setPositiveButton(android.R.string.ok) { dialog, which ->
+                    currentPass = null
+                    refreshLock()
+                    edited = true
+                    autoSave()
+                }
+                builder.setNegativeButton(android.R.string.cancel) { dialog, which ->
+                    dialog.cancel()
+                }
+                builder.show()
+            }
+        }
+
         clearButton.setOnClickListener {
             clearStyles()
             edited = true
@@ -527,7 +584,16 @@ class NoteActivity : AppCompatActivity(), TagInterface {
         }
     }
 
-    val adapter = TagsAdapter(supportFragmentManager, true, this)
+    fun cursorX() = editContent.layout.getPrimaryHorizontal(selectionStart())
+
+    fun cursorY(): Int {
+        val line = editContent.layout.getLineForOffset(selectionStart())
+        val baseline = editContent.layout.getLineBaseline(line)
+        val ascent = editContent.layout.getLineAscent(line)
+        return baseline + ascent
+    }
+
+    val adapter = TagsAdapter(supportFragmentManager, true, this, context = this)
 
     fun initRecycler() {
         adapter.submitList(tagsList)
@@ -541,30 +607,23 @@ class NoteActivity : AppCompatActivity(), TagInterface {
     }
 
     fun loadData() {
+        //Load essential data
         val id = intent.getIntExtra("id", -1)
-        if (id == -1) {
-            //It is not an existing note
+        //It is an existing note, get it from database and cache it
+        val context = this
+        runBlocking {
+            note = NotesDB.getDB(context).noteDao().getNote(id)
+        }
 
-            refreshDate()
+        //Password
+        currentPass = note?.password
+        if (note == null) {
+            //It is not an existing note
+            refreshColors()
         } else {
-            //It is an existing note, get it from database and cache it
-            note = Note(
-                id,
-                intent.getStringExtra("name")!!,
-                intent.getBooleanExtra("favorite", false),
-                intent.getStringExtra("color"),
-                intent.getLongExtra("creationDate", -1),
-                intent.getLongExtra("lastDate", System.currentTimeMillis()),
-                intent.getStringArrayListExtra("tags")!!.toList(),
-                intent.getLongExtra("reminder", -1),
-                intent.getStringExtra("content")!!
-            )
 
             currentColor = note!!.color
             currentReminder = note!!.reminder
-
-            //Name
-            editName.setText(note?.name)
 
             //Favorite
             editFav.isChecked = note!!.favorite
@@ -575,91 +634,56 @@ class NoteActivity : AppCompatActivity(), TagInterface {
             //Reminder
             refreshReminder()
 
+            refreshLock()
+
             //Tag
             tagsList.clear()
             tagsList.addAll(note!!.tags)
-            adapter.submitList(ArrayList(tagsList))
+            refreshTags()
 
             refreshColors()
 
             //Content
             editContent.setText(HtmlUtils.fromHtml(note!!.content))
+
+            //Name
+            editName.setText(note?.name)
         }
     }
 
-    lateinit var alarmManager: AlarmManager
-    lateinit var notManager: NotificationManager
-    lateinit var notChannel: NotificationChannel
-
-    val CHANNEL_ID = "grafobook.reminderchannel"
-
-    fun setAlarm(note: Note): PendingIntent {
-        val time: Long = note.reminder
-        val intent = Intent(this, AlarmReceiver::class.java)
-        intent.putExtras(getBundle(note))
-        val pendingIntent =
-            PendingIntent.getBroadcast(this, note.id, intent, PendingIntent.FLAG_UPDATE_CURRENT)
-        if (time != -1L && time > System.currentTimeMillis()) {
-            //If reminder exists and has not passed
-            alarmManager.set(AlarmManager.RTC_WAKEUP, time, pendingIntent)
+    fun getCursorLine(): Int {
+        if (selectionStart() == -1) {
+            return -1
         }
-        return pendingIntent
-    }
-
-    val remindersList = ArrayList<PendingIntent>()
-
-    fun createNotChannel() {
-        alarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            notChannel = NotificationChannel(
-                CHANNEL_ID,
-                getString(R.string.reminder_channel),
-                NotificationManager.IMPORTANCE_DEFAULT
-            )
-            notChannel.enableLights(true)
-            notChannel.lightColor = accentColor()
-            notChannel.enableVibration(true)
-
-            notManager = getSystemService(NotificationManager::class.java)
-            notManager.createNotificationChannel(notChannel)
-        }
-    }
-
-    fun clearAlarms() {
-        for (alarm in remindersList) {
-            alarmManager.cancel(alarm)
-        }
-    }
-
-    fun getBundle(note: Note): Bundle {
-        val bundle = Bundle()
-        bundle.putInt("id", note.id)
-        bundle.putString("name", note.name)
-        bundle.putString("content", note.content)
-        bundle.putString("color", accentColor(note))
-        bundle.putBoolean("favorite", note.favorite)
-        bundle.putLong("creationDate", note.creationDate)
-        bundle.putLong("lastDate", note.lastDate)
-        bundle.putLong("reminder", note.reminder)
-        val tags = ArrayList<String>()
-        tags.addAll(note.tags)
-        bundle.putStringArrayList("tags", tags)
-        return bundle
+        return editContent.layout.getLineForOffset(selectionStart())
     }
 
     fun refreshColors() {
         window.statusBarColor = statusColor()
-        editName.setTextColor(accentColor())
-        tintBox(editFav, accentColor())
+        editName.setTextColor(contrastColor())
+        noteConstraint.setBackgroundColor(statusColor())
+        refreshDate()
+        refreshReminder()
+        refreshTags()
+        adapter.forceRefresh()
         //Tinting buttons
-        saveFAB.backgroundTintList = ColorStateList.valueOf(accentColor())
-        tintButton(backButton, accentColor())
+        saveFAB.backgroundTintList = ColorStateList.valueOf(noteAccentColor())
+        tintButton(backButton, contrastColor())
         for (button in editorButtons.children) {
-            tintButton(button as ImageButton, accentColor())
+            tintButton(button, noteAccentColor())
         }
     }
 
-    fun accentColor(): Int {
+    fun refreshTags() {
+        if (currentColor != null) {
+            adapter.color = Color.parseColor(currentColor)
+        } else {
+            adapter.color = null
+        }
+        adapter.notifyDataSetChanged()
+    }
+
+    fun noteAccentColor(): Int {
         if (currentColor == null) {
             val value = TypedValue()
             theme.resolveAttribute(android.R.attr.colorAccent, value, true)
@@ -673,11 +697,11 @@ class NoteActivity : AppCompatActivity(), TagInterface {
         if (currentColor != null) {
             return Color.parseColor(currentColor)
         } else {
-            return statusDefaultColor
+            return getColor(R.color.background)
         }
     }
 
-    fun accentColor(note: Note): String {
+    fun noteAccentColor(note: Note): String {
         if (note.color == null) {
             val value = TypedValue()
             theme.resolveAttribute(android.R.attr.colorAccent, value, true)
@@ -696,47 +720,46 @@ class NoteActivity : AppCompatActivity(), TagInterface {
         }
     }
 
-    private fun textColor(): Int {
-        val value = TypedValue()
-        theme.resolveAttribute(android.R.attr.textColorSecondary, value, true)
-        return ContextCompat.getColor(this, value.resourceId)
+    fun contrastColor(): Int {
+        val finalColor: Int
+        if (currentColor != null) {
+            if (isDarkColor(Color.parseColor(currentColor))) {
+                finalColor = Color.WHITE
+            } else {
+                finalColor = Color.BLACK
+            }
+        } else {
+            if (isDarkColor(getColor(R.color.cardBackground))) {
+                finalColor = Color.WHITE
+            } else {
+                finalColor = Color.BLACK
+            }
+        }
+        return finalColor
     }
 
     fun refreshDate() {
-        val textColor = textColor()
-        tintImg(editDateIcon, textColor)
-        tintText(editDate, textColor)
+        val contrastColor = contrastColor()
+        tintImg(editDateIcon, contrastColor)
+        tintText(editDate, contrastColor)
 
         var date: Long = System.currentTimeMillis()
 
         if (note != null) {
             date = note!!.lastDate
         }
-
-        val formattedDate =
-            SimpleDateFormat(
-                getString(R.string.year_month_date_hour_minute),
-                Locale.getDefault()
-            ).format(date)
-        editDate.setText(formattedDate)
+        editDate.text = TimeUtils.getSimpleDate(date, this)
     }
 
     fun refreshReminder() {
-        val textColor = textColor()
+        val textColor = contrastColor()
         if (currentReminder == -1L) {
             //Has no reminder
             editRemindLayout.visibility = View.GONE
             remindButton.setImageResource(R.drawable.ic_round_notification_add_32)
         } else {
             //Has reminder
-            editRemind.setText(
-                SimpleDateFormat(
-                    getString(R.string.year_month_date_hour_minute),
-                    Locale.getDefault()
-                ).format(
-                    currentReminder
-                )
-            )
+            editRemind.text = TimeUtils.getSimpleDate(currentReminder, this)
             if (currentReminder < System.currentTimeMillis()) {
                 editRemindIcon.setImageResource(R.drawable.ic_baseline_alarm_on_24)
             } else {
@@ -749,49 +772,29 @@ class NoteActivity : AppCompatActivity(), TagInterface {
         }
     }
 
-    fun tintImg(view: ImageView, color: Int?) {
-
-        if (color == null) {
-            return
+    fun refreshLock() {
+        if (currentPass == null) {
+            lockButton.setImageResource(R.drawable.ic_round_lock_32)
+        } else {
+            lockButton.setImageResource(R.drawable.ic_round_lock_open_32)
         }
-
-        view.setColorFilter(color)
     }
 
-    fun tintText(view: TextView, color: Int?) {
-
-        if (color == null) {
-            return
+    fun tintButton(view: View, color: Int?) {
+        if (view is ImageButton) {
+            tintImgButton(view, color)
+        } else if (view is CheckBox) {
+            tintBox(view, color)
         }
-
-        view.setTextColor(color)
     }
 
-    fun tintButton(view: ImageButton, color: Int?) {
-
-        if (color == null) {
-            return
-        }
-
-        view.colorFilter = PorterDuffColorFilter(color, PorterDuff.Mode.SRC_ATOP)
-    }
-
-    fun tintBox(view: CheckBox, color: Int?) {
-
-        if (color == null) {
-            return
-        }
-
-        view.buttonTintList = ColorStateList.valueOf(color)
-    }
-
-    fun toggleSpan(style: Any) {
+    fun toggleSpan(style: Any, start: Int = selectionStart(), end: Int = selectionEnd()) {
         if (selectionHasStyle(style)) {
             //Selection already has this style, so remove it
-            removeStyle(style)
+            removeStyle(style, start, end)
         } else {
             //Selection does not have this style, add it
-            insertStyle(style)
+            insertStyle(style, start, end)
         }
     }
 
@@ -820,10 +823,14 @@ class NoteActivity : AppCompatActivity(), TagInterface {
         return false
     }
 
-    fun getSelectedSpan(style: Any): Any? {
+    fun getSelectedSpan(
+        style: Any,
+        start: Int = selectionStart(),
+        end: Int = selectionEnd()
+    ): Any? {
         for (char in editContent.text.getSpans(
-            selectionStart(),
-            selectionEnd(),
+            start,
+            end,
             style::class.java
         )) {
             if (style is StyleSpan) {
@@ -839,12 +846,12 @@ class NoteActivity : AppCompatActivity(), TagInterface {
         return null
     }
 
-    fun insertStyle(style: Any) {
+    fun insertStyle(style: Any, start: Int = selectionStart(), end: Int = selectionEnd()) {
         try {
             editContent.text.setSpan(
                 style,
-                selectionStart(),
-                selectionEnd(),
+                start,
+                end,
                 SpannableString.SPAN_INCLUSIVE_EXCLUSIVE
             )
         } catch (ex: IndexOutOfBoundsException) {
@@ -852,8 +859,8 @@ class NoteActivity : AppCompatActivity(), TagInterface {
         }
     }
 
-    fun removeStyle(style: Any) {
-        editContent.text.removeSpan(getSelectedSpan(style))
+    fun removeStyle(style: Any, start: Int = selectionStart(), end: Int = selectionEnd()) {
+        editContent.text.removeSpan(getSelectedSpan(style, start, end))
     }
 
     fun selectionStart(): Int {
@@ -865,7 +872,7 @@ class NoteActivity : AppCompatActivity(), TagInterface {
     }
 
     fun saveData(showToast: Boolean = true) {
-        if(!editName.text.isNullOrBlank()){
+        if (!editName.text.isNullOrBlank()) {
             editContent.clearComposingText()
             if (note == null) {
                 //It is not an existing note, create a new one
@@ -877,7 +884,8 @@ class NoteActivity : AppCompatActivity(), TagInterface {
                     lastDate = System.currentTimeMillis(),
                     tags = tagsList,
                     reminder = currentReminder,
-                    content = HtmlUtils.toHtml(editContent.text)
+                    content = HtmlUtils.toHtml(editContent.text),
+                    password = currentPass
                 )
                 val context = this
                 runBlocking {
@@ -899,7 +907,8 @@ class NoteActivity : AppCompatActivity(), TagInterface {
                     lastDate = System.currentTimeMillis(),
                     tags = tagsList,
                     reminder = currentReminder,
-                    content = HtmlUtils.toHtml(editContent.text)
+                    content = HtmlUtils.toHtml(editContent.text),
+                    password = currentPass
                 )
                 viewModel.update(note!!)
                 if (showToast) {
@@ -908,6 +917,8 @@ class NoteActivity : AppCompatActivity(), TagInterface {
                 refreshDate()
             }
         }
+        WidgetUtils.refreshWidgets(this)
+        BackupManager.dataChanged(packageName)
     }
 
     fun autoSave() {
@@ -926,7 +937,7 @@ class NoteActivity : AppCompatActivity(), TagInterface {
 
     override fun onCloseTag(string: String) {
         tagsList.remove(string)
-        adapter.submitList(ArrayList(tagsList))
+        adapter.notifyDataSetChanged()
         edited = true
         autoSave()
     }

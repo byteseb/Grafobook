@@ -1,0 +1,85 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="4dp">
+
+    <FrameLayout
+        android:id="@+id/upiShadow"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/card_shadow">
+
+        <FrameLayout
+            android:id="@+id/upiCard"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_margin="2dp">
+
+            <ImageView
+                android:id="@+id/upiBack"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:src="@drawable/widget_background" />
+
+            <LinearLayout
+                android:id="@+id/upiInfo"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_margin="10dp"
+                android:orientation="vertical">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/upiDate"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_gravity="center_vertical"
+                        android:alpha="0.7"
+                        android:fontFamily="sans-serif-medium"
+                        android:gravity="center_vertical"
+                        android:maxLines="1"
+                        android:text="2008-09-23"
+                        android:textSize="16sp" />
+
+                    <TextView
+                        android:id="@+id/upiName"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:alpha="0.9"
+                        android:fontFamily="sans-serif-medium"
+                        android:maxLines="2"
+                        android:text="Name placeholder"
+                        android:textSize="18sp" />
+
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/upiContent"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:fontFamily="sans-serif-medium"
+                    android:lines="1"
+                    android:maxLines="1"
+                    android:text="aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/upiError"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_margin="10dp"
+                android:gravity="center"
+                android:text="@string/note_widget_error"
+                android:textStyle="bold"
+                android:visibility="gone" />
+
+        </FrameLayout>
+
+    </FrameLayout>
+
+</FrameLayout>

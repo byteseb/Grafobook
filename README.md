@@ -83,7 +83,7 @@ Possible 1.2.x/1.3 features:
 * New feature for exporting notes as plain text (No formatting).
 * Improved code organization by creating new util classes: ColorUtils, DimenUtils, NotificationUtils, PrefUtils, ReminderUtils, TimeUtils and WidgetUtils
 * All Activities now extend BaseActivity. This class contains theming code that most activities used, avoiding copy-pasting.
-* Note cards get a slight redesign, removing the icon next to the last modified date, item that now uses a more natural interpretation of dates (ex "Tommorow 13:00" instead of "year/month/day 13:00").
+* Note cards get a slight redesign, removing the icon next to the last modified date, item that now uses a more natural interpretation of dates (ex "Tomorrow 13:00" instead of "year/month/day 13:00").
 * The Note Activity has gotten a small redesign to make it easier to know if the note has a color. It also has a hide/show animation that corresponds to the EditText that the user is focusing (Note's name EditText or Note's content EditText).
 * Moved NoteActivity's favorites checkbox at the bottom, to be inside the editor's formatting bar
 * Replaced all back buttons' icon with another one.

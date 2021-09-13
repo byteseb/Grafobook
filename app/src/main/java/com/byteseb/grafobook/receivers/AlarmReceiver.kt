@@ -1,6 +1,7 @@
 package com.byteseb.grafobook.receivers
 
 import android.app.PendingIntent
+import android.app.PendingIntent.FLAG_IMMUTABLE
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -30,7 +31,7 @@ class AlarmReceiver : BroadcastReceiver() {
         noteIntent.putExtras(bundle!!)
         noteIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         val pending =
-            PendingIntent.getActivity(context, id!!, noteIntent, PendingIntent.FLAG_CANCEL_CURRENT)
+            PendingIntent.getActivity(context, id!!, noteIntent, PendingIntent.FLAG_CANCEL_CURRENT or FLAG_IMMUTABLE)
 
         NotificationUtils.showNotification(
             context = context,

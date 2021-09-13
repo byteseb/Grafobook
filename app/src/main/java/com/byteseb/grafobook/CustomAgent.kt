@@ -105,7 +105,7 @@ class CustomAgent : BackupAgentHelper() {
                     this,
                     notId,
                     settingsIntent,
-                    PendingIntent.FLAG_CANCEL_CURRENT
+                    PendingIntent.FLAG_CANCEL_CURRENT or PendingIntent.FLAG_IMMUTABLE
                 )
             NotificationUtils.showNotification(
                 context = this,

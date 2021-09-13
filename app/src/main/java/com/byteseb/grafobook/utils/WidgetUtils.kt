@@ -70,7 +70,7 @@ class WidgetUtils {
                         context,
                         noteId,
                         intent,
-                        PendingIntent.FLAG_UPDATE_CURRENT
+                        PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
                     )
                 views.setOnClickPendingIntent(R.id.nwBack, pending)
                 val contrastColor: Int
@@ -290,7 +290,7 @@ class WidgetUtils {
                         context,
                         note.id,
                         intent,
-                        PendingIntent.FLAG_UPDATE_CURRENT
+                        PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
                     )
                 views.setOnClickPendingIntent(R.id.upiBack, pending)
                 val contrastColor: Int

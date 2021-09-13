@@ -49,14 +49,14 @@ I have been thinking about splitting the updates into small-medium updates, beca
 🔴 = Unlikely
 
 Possible 1.2.x/1.3 features:
-* 🟢Supporting Android 12 (With Material You redesign).
+* 🟢Material You redesign
 * 🟢Hiding notes
 * 🟢Folders: You would be able to save notes in folders and (maybe?) create nested folders. This would include an archived and recycle bin folders.
 * 🟢Adding a new note tile to quick settings.
 * 🟡Reworking the whole editor, maybe adding the ability to create format groups, or something similar (for example: having the bold and italics button in a group that the user created according to how they like their workspace to be).
 * 🟡Creating a new formatting "engine" or "algorithm". To be more specific, using a new way of saving and loading the notes. It should be able to preserve formatting and adding missing formatting features that have not been added due to Span limitations. This could include Alignment, bullet lists, code blocks, checklists, etc.
 * 🟡Adding support for Google Assistant
-* 🟡Sharing notes by QR code. As weird as it can sound, you could share a note quickly with a person that would just scan the QR code in their Grafobook app. The QR code stores a .gfbk file. Obviously, due to the limitations, the QR saves the file as a Json string, not the actual file.
+* 🟡Sharing notes by QR code. As weird as it can sound, you could share a small note quickly with a person that would just scan the QR code in their Grafobook app. The QR code stores a .gfbk file. Obviously, due to the limitations, the QR saves the file as a Json string, not the actual file.
 
 ## :scroll: Changelog
 
@@ -98,3 +98,8 @@ Possible 1.2.x/1.3 features:
 * Added setting for toggling the content of a locked note.
 * Fixed bug where recreation did not work in ImportActivity
 * Fixed bug where the notifications got canceled when the user rebooted their phone. Now they get refreshed when the boot is completed (BootReceiver class).
+
+###1.3
+* The app now supports and targets Android 12 (no Material You redesign for now, as there are no official APIs available yet)
+* Fixed bug where translations would not be shown in some places like widgets or the protected notes screen.
+* Fixed a bug where alarms had a delay of seconds (yes, I did notice and I care).

@@ -1,5 +1,4 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-
     <!-- main_activity.xml -->
     <string name="empty_place">Such an empty place…</string>
     <string name="try_creating_note">Try creating a note</string>
@@ -53,6 +52,8 @@
     <string name="note_saved">Note saved</string>
     <string name="name_required">A name for the note is required</string>
     <string name="send_to">Send to…</string>
+    <string name="protected_note">Protected note</string>
+    <string name="type_password_access">Type password to access</string>
 
     <!-- note_widget.xml -->
     <string name="note_widget">Note</string>
@@ -60,6 +61,7 @@
 
     <!-- upcoming_widget.xml -->
     <string name="upcoming_widget">Upcoming reminders</string>
+    <string name="no_notes_with_reminders">No notes with reminders.</string>
 
     <!--  AlarmReceiver.kt  -->
     <string name="remove_reminder_action">Remove reminder</string>
@@ -199,5 +201,4 @@
     <string name="not_restore_title">Backup restored</string>
     <string name="not_exceeded_title">Backup failed</string>
     <string name="not_exceeded_desc">Could not perform a backup, as the size exceeds the 25MB limit.</string>
-
 </resources>

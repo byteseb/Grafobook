@@ -45,12 +45,12 @@ class ReminderUtils {
                     context,
                     note.id,
                     intent,
-                    PendingIntent.FLAG_CANCEL_CURRENT
+                    PendingIntent.FLAG_CANCEL_CURRENT or PendingIntent.FLAG_IMMUTABLE //Immutable flag for Android 12
                 )
             if (time != -1L && time > System.currentTimeMillis()) {
                 //If reminder exists and has not passed
                 try {
-                    alarmManager.set(AlarmManager.RTC_WAKEUP, time, pendingIntent)
+                    alarmManager.setExact(AlarmManager.RTC_WAKEUP, time, pendingIntent)
                 }
                 catch(exception: IllegalStateException){
 

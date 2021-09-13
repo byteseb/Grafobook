@@ -40,6 +40,8 @@
                     android:alpha="0.9"
                     android:background="@android:color/transparent"
                     android:contentDescription="@string/back_button_desc"
+                    android:minWidth="48dp"
+                    android:minHeight="48dp"
                     app:srcCompat="@drawable/ic_round_arrow_back_32"
                     app:tint="@color/black" />
 
@@ -56,6 +58,7 @@
                     android:fontFamily="@font/poppins_bold"
                     android:imeOptions="flagNoExtractUi"
                     android:inputType="textPersonName"
+                    android:minHeight="48dp"
                     android:text="@string/default_note_name"
                     android:textColor="@color/black"
                     android:textSize="24sp" />
@@ -357,7 +360,7 @@
                 android:layout_height="wrap_content"
                 android:drawablePadding="10dp"
                 android:fontFamily="@font/poppins_semibold"
-                android:text="Note locked"
+                android:text="protected_note"
                 android:textAlignment="center"
                 android:textColor="?attr/colorAccent"
                 android:textSize="24sp" />

@@ -133,4 +133,7 @@
     <string name="last_local_backup">Último respaldo local: %s</string>
     <string name="tomorrow">Mañana</string>
     <string name="reached_reminder_limit">Alcanzaste el límite de recordatorios. Algunos podrían dejar de funcionar.</string>
+    <string name="protected_note">Nota protegida</string>
+    <string name="type_password_access">Escribe la contraseña para acceder</string>
+    <string name="no_notes_with_reminders">No hay notas con recordatorios.</string>
 </resources>

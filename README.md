@@ -96,10 +96,10 @@ Possible 1.2.x/1.3 features:
 * Settings page features icons and a reorganized structure.
 * Some UI elements are now more/less rounded, as they now use a global dimens.xml value (ex: Search bar is less rounded, but notes are more rounded).
 * Added setting for toggling the content of a locked note.
-* Fixed bug where recreation did not work in ImportActivity
+* Fixed bug where recreation did not work in ImportActivity.
 * Fixed bug where the notifications got canceled when the user rebooted their phone. Now they get refreshed when the boot is completed (BootReceiver class).
 
 ###1.3
-* The app now supports and targets Android 12 (no Material You redesign for now, as there are no official APIs available yet)
+* The app now supports and targets Android 12 (no Material You redesign for now, as there are no official APIs available yet).
 * Fixed bug where translations would not be shown in some places like widgets or the protected notes screen.
 * Fixed a bug where alarms had a delay of seconds (yes, I did notice and I care).

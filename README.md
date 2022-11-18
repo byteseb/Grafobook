@@ -38,26 +38,6 @@ If you want to know about the creation process, [I have a video where I try to c
 ## :arrow_down:Downloads
 |[Google Play Page](https://play.google.com/store/apps/details?id=com.byteseb.grafobook)|
 
-I really appreciate all feedback. If you want to suggest some feature, report a bug or just share your opinion, you can [open a new issue](https://github.com/ByteSeb/Grafobook/issues/new). Thank you!
-
-## :new: Upcoming release: 1.3
-### ⚠️ Everything in this section is just ideas, drafts. This is just to keep in mind what could be next for Grafobook. Features mentioned below could change! If you want to propose yours, please, [open a new issue](https://github.com/ByteSeb/Grafobook/issues/new).
-I have been thinking about splitting the updates into small-medium updates, because 1.2 was a very big update that took almost a month to finish. This would allow me to release them quicker and fix urgent bugs, but a the cost of less important features frequently.
-
-🟢 = Very likely
-🟡 = Likely
-🔴 = Unlikely
-
-Possible 1.2.x/1.3 features:
-* 🟢Material You redesign
-* 🟢Hiding notes
-* 🟢Folders: You would be able to save notes in folders and (maybe?) create nested folders. This would include an archived and recycle bin folders.
-* 🟢Adding a new note tile to quick settings.
-* 🟡Reworking the whole editor, maybe adding the ability to create format groups, or something similar (for example: having the bold and italics button in a group that the user created according to how they like their workspace to be).
-* 🟡Creating a new formatting "engine" or "algorithm". To be more specific, using a new way of saving and loading the notes. It should be able to preserve formatting and adding missing formatting features that have not been added due to Span limitations. This could include Alignment, bullet lists, code blocks, checklists, etc.
-* 🟡Adding support for Google Assistant
-* 🟡Sharing notes by QR code. As weird as it can sound, you could share a small note quickly with a person that would just scan the QR code in their Grafobook app. The QR code stores a .gfbk file. Obviously, due to the limitations, the QR saves the file as a Json string, not the actual file.
-
 ## :scroll: Changelog
 
 ### 1.0 
